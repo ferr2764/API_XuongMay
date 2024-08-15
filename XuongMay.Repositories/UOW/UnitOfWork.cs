@@ -1,4 +1,6 @@
-﻿using XuongMay.Contract.Repositories.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Repositories.Context;
 
 namespace XuongMay.Repositories.UOW
@@ -7,6 +9,19 @@ namespace XuongMay.Repositories.UOW
     {
         private bool disposed = false;
         private readonly DatabaseContext _dbContext = dbContext;
+        private IGenericRepository<Category> _categories;
+        private IGenericRepository<Product> _products;
+        private IGenericRepository<Order> _orders;
+        private IGenericRepository<Account> _accounts;
+
+        public IGenericRepository<Category> Categories => _categories ??= new GenericRepository<Category>(_dbContext);
+
+        public IGenericRepository<Product> Products => _products ??= new GenericRepository<Product>(_dbContext);
+
+        public IGenericRepository<Order> Orders => _orders ??= new GenericRepository<Order>(_dbContext);
+
+        public IGenericRepository<Account> Accounts => _accounts ??= new GenericRepository<Account>(_dbContext);
+
         public void BeginTransaction()
         {
             _dbContext.Database.BeginTransaction();
@@ -53,5 +68,8 @@ namespace XuongMay.Repositories.UOW
         {
             return new GenericRepository<T>(_dbContext);
         }
+
+        public async Task<int> CompleteAsync() => await _dbContext.SaveChangesAsync();
+
     }
 }

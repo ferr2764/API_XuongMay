@@ -1,4 +1,6 @@
-﻿namespace XuongMay.Contract.Repositories.Interface
+﻿using XuongMay.Contract.Repositories.Entity;
+
+namespace XuongMay.Contract.Repositories.Interface
 {
     public interface IUnitOfWork : IDisposable
     {
@@ -8,5 +10,10 @@
         void BeginTransaction();
         void CommitTransaction();
         void RollBack();
+        IGenericRepository<Category> Categories { get; }
+        IGenericRepository<Product> Products { get; }
+        IGenericRepository<Order> Orders { get; }
+        IGenericRepository<Account> Accounts { get; }
+        Task<int> CompleteAsync();
     }
 }

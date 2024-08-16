@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.AuthModelViews;
+
 
 namespace XuongMayBE.API.Controllers
 {
@@ -7,19 +10,49 @@ namespace XuongMayBE.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public AuthController() { }
+        private readonly IAuthService _authService;
 
-        [HttpGet("auth_account")]
-        public async Task<IActionResult> Login(LoginModelView model)
+        public AuthController(IAuthService authService)
         {
-            return Ok(); 
+            _authService = authService;
         }
 
-        [HttpPost("new_account")]
-        public async Task<IActionResult> Register()
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] Account account)
         {
-            return Ok();
+            if (account == null)
+            {
+                return BadRequest("Invalid registration data.");
+            }
+
+            try
+            {
+                await _authService.RegisterUserAsync(account);
+                return Ok("User registered successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModelView loginRequest)
+        {
+            if (loginRequest == null)
+            {
+                return BadRequest("Invalid login data.");
+            }
+
+            try
+            {
+                var user = await _authService.AuthenticateUserAsync(loginRequest.Username, loginRequest.Password);
+                return Ok(new { Message = "Login successful", User = user });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
     }
 }

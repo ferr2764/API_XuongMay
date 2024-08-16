@@ -38,7 +38,7 @@ namespace XuongMay.Services.Service
         {
             var repository = _unitOfWork.GetRepository<Product>();
             await repository.InsertAsync(product);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
             return product;
         }
 
@@ -59,7 +59,7 @@ namespace XuongMay.Services.Service
             existingProduct.CategoryId = product.CategoryId;
 
             repository.Update(existingProduct);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
             return existingProduct;
         }
@@ -75,7 +75,7 @@ namespace XuongMay.Services.Service
                 return false;
 
             await repository.DeleteAsync(objectId);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
             return true;
         }

@@ -1,14 +1,17 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-public class Category
+namespace XuongMay.Contract.Repositories.Entity
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
+    public class Category
+    {
+        [BsonId]
+        public ObjectId Id { get; set; }
 
-    [BsonElement("categoryName")]
-    public string CategoryName { get; set; }
+        [BsonElement("categoryName")]
+        public string CategoryName { get; set; }
 
-    [BsonElement("categoryDescription")]
-    public string CategoryDescription { get; set; }
+        [BsonElement("categoryDescription")]
+        public string CategoryDescription { get; set; }
+    }
 }

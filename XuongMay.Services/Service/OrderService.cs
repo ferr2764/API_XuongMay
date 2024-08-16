@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.OrderModelViews;
 
 namespace XuongMay.Services.Service
 {
@@ -34,11 +35,16 @@ namespace XuongMay.Services.Service
             return await repository.GetByIdAsync(objectId);
         }
 
-        public async Task<Order> CreateOrderAsync(Order order)
+        public async Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel)
         {
+            Order order = new Order();
+            order.AccountId = ObjectId.Parse(orderViewModel.AccountId);
+            order.Deadline = orderViewModel.Deadline;
+            order.Status = "Created";
+            order.CreatedDate = DateTime.Now;
             var repository = _unitOfWork.GetRepository<Order>();
             await repository.InsertAsync(order);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
             return order;
         }
 

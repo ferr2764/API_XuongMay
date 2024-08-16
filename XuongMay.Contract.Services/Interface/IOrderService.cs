@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
+using XuongMay.ModelViews.OrderModelViews;
 
 namespace XuongMay.Contract.Services.Interface
 {
@@ -11,7 +12,7 @@ namespace XuongMay.Contract.Services.Interface
     {
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task<Order> GetOrderByIdAsync(string id);
-        Task<Order> CreateOrderAsync(Order order);
+        Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel);
         Task<Order> UpdateOrderAsync(string id, Order order);
         Task<bool> DeleteOrderAsync(string id);
     }

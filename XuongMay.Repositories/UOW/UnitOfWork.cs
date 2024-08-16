@@ -1,57 +1,55 @@
-﻿using XuongMay.Contract.Repositories.Interface;
-using XuongMay.Repositories.Context;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using MongoDB.Driver;
+using XuongMay.Contract.Repositories.Interface;
+using XuongMay.Contract.Repositories.IUOW;
 
-namespace XuongMay.Repositories.UOW
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork(DatabaseContext dbContext) : IUnitOfWork
+    private readonly IMongoDatabase _database;
+    private readonly IClientSessionHandle _session;
+    private readonly ConcurrentDictionary<Type, object> _repositories;
+
+    public UnitOfWork(IMongoClient mongoClient, string databaseName)
     {
-        private bool disposed = false;
-        private readonly DatabaseContext _dbContext = dbContext;
-        public void BeginTransaction()
-        {
-            _dbContext.Database.BeginTransaction();
-        }
+        _database = mongoClient.GetDatabase(databaseName);
+        _session = mongoClient.StartSession();
+        _repositories = new ConcurrentDictionary<Type, object>();
+    }
 
-        public void CommitTransaction()
-        {
-            _dbContext.Database.CommitTransaction();
-        }
+    public IGenericRepository<T> GetRepository<T>() where T : class
+    {
+        return (IGenericRepository<T>)_repositories.GetOrAdd(typeof(T), (type) => new GenericRepository<T>(_database));
+    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    _dbContext.Dispose();
-                }
-            }
-            disposed = true;
-        }
+    public void Save()
+    {
+        _session.CommitTransaction();
+    }
 
-        public void RollBack()
-        {
-            _dbContext.Database.RollbackTransaction();
-        }
+    public async Task SaveAsync()
+    {
+        await _session.CommitTransactionAsync();
+    }
 
-        public void Save()
-        {
-            _dbContext.SaveChanges();
-        }
+    public void BeginTransaction()
+    {
+        _session.StartTransaction();
+    }
 
-        public async Task SaveAsync()
-        {
-            await _dbContext.SaveChangesAsync();
-        }
+    public void CommitTransaction()
+    {
+        _session.CommitTransaction();
+    }
 
-        public IGenericRepository<T> GetRepository<T>() where T : class
-        {
-            return new GenericRepository<T>(_dbContext);
-        }
+    public void RollBackTransaction()
+    {
+        _session.AbortTransaction();
+    }
+
+    public void Dispose()
+    {
+        _session?.Dispose();
     }
 }

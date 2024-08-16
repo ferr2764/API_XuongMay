@@ -16,7 +16,7 @@ namespace XuongMay.Contract.Repositories.Entity
         public string ProductSize { get; set; }
 
         [BsonElement("status")]
-        public string ProductStatus { get; set; }
+        public string Status { get; set; }
 
         [BsonElement("detailId")]
         [BsonRepresentation(BsonType.ObjectId)]

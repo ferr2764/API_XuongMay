@@ -13,7 +13,7 @@ namespace XuongMay.Contract.Repositories.Entity
         public int NumberOfProds { get; set; }
 
         [BsonElement("status")]
-        public string OrderDetailStatus { get; set; }
+        public string Status { get; set; }
 
         [BsonElement("orderId")]
         [BsonRepresentation(BsonType.ObjectId)]

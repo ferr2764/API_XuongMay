@@ -16,7 +16,7 @@ namespace XuongMay.Contract.Repositories.Entity
         public DateTime FinishDate { get; set; }
 
         [BsonElement("status")]
-        public string OrderStatus { get; set; }
+        public string Status { get; set; }
 
         [BsonElement("deadline")]
         public DateTime Deadline { get; set; }

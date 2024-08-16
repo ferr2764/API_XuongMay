@@ -22,21 +22,24 @@ namespace XuongMayBE.API
             });
         }
         public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
-        {
-            var connectionString = configuration["ConnectionStrings:MongoDb"];
-            var databaseName = configuration["MongoDbDatabase"];
+{
+    var connectionString = configuration["ConnectionStrings:MongoDb"];
+    var databaseName = configuration["MongoDbDatabase"];
 
-            services.AddSingleton<IMongoClient>(sp =>
-            {
-                return new MongoClient(connectionString);
-            });
+    services.AddSingleton<IMongoClient>(sp =>
+    {
+        return new MongoClient(connectionString);
+    });
 
-            services.AddSingleton(sp =>
-            {
-                var client = sp.GetRequiredService<IMongoClient>();
-                return client.GetDatabase(databaseName);
-            });
-        }
+    services.AddSingleton(sp =>
+    {
+        var client = sp.GetRequiredService<IMongoClient>();
+        return client.GetDatabase(databaseName);
+    });
+
+    // Register the database name for use by UnitOfWork
+    services.AddSingleton(databaseName);
+}
 
 
         public static void AddServices(this IServiceCollection services)

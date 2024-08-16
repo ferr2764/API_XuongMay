@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using XuongMay.Contract.Repositories.Entity;
+
 
 namespace XuongMay.Contract.Repositories.IUOW
 {

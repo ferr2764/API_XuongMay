@@ -1,9 +1,9 @@
-﻿using System;
+﻿using MongoDB.Driver;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Repositories.IUOW;
+using XuongMay.Repositories.UOW;
 
 public class UnitOfWork : IUnitOfWork
 {
@@ -11,9 +11,9 @@ public class UnitOfWork : IUnitOfWork
     private readonly IClientSessionHandle _session;
     private readonly ConcurrentDictionary<Type, object> _repositories;
 
-    public UnitOfWork(IMongoClient mongoClient, string databaseName)
+    public UnitOfWork(IMongoClient mongoClient, IMongoDatabase database)
     {
-        _database = mongoClient.GetDatabase(databaseName);
+        _database = database;
         _session = mongoClient.StartSession();
         _repositories = new ConcurrentDictionary<Type, object>();
     }

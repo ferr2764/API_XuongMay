@@ -13,7 +13,7 @@ namespace XuongMay.Contract.Repositories.Entity
         public DateTime CreatedDate { get; set; }
 
         [BsonElement("finishDate")]
-        public DateTime FinishDate { get; set; }
+        public DateTime? FinishDate { get; set; }
 
         [BsonElement("status")]
         public string Status { get; set; }

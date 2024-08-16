@@ -1,7 +1,5 @@
-﻿using MongoDB.Bson;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 
 public class AccountService : IAccountService
@@ -13,22 +11,26 @@ public class AccountService : IAccountService
         _accounts = database.GetCollection<Account>("Accounts");
     }
 
+    //Get account By Id
     public async Task<Account> GetAccountByIdAsync(string id)
     {
         ObjectId objectId = ObjectId.Parse(id);
         return await _accounts.Find(a => a.Id == objectId).FirstOrDefaultAsync();
     }
-
+    
+    //Get account By Role
     public async Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role)
     {
         return await _accounts.Find(a => a.Role == role).ToListAsync();
     }
-
+    
+    //Get all accounts
     public async Task<IEnumerable<Account>> GetAllAccountsAsync()
     {
         return await _accounts.Find(a => true).ToListAsync();
     }
-
+   
+    //Update account
     public async Task UpdateAccountByIdAsync(string id, Account updatedAccount)
     {
         ObjectId objectId = ObjectId.Parse(id);

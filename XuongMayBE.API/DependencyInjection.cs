@@ -1,4 +1,4 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.Services;
 using XuongMay.Services.Service;
@@ -40,19 +40,12 @@ namespace XuongMayBE.API
     // Register the database name for use by UnitOfWork
     services.AddSingleton(databaseName);
 }
-
-
         public static void AddServices(this IServiceCollection services)
         {
-            /*services
-                //.AddScoped<IUserService, UserService>()
-                .AddScoped<IUserService, UserService>();*/
             services.AddScoped<IAuthService, AuthService>();
-<<<<<<< Updated upstream
-=======
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IOrderService, OrderService>();
->>>>>>> Stashed changes
+
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿
 using XuongMay.Contract.Repositories.Entity;
 
 public interface IAccountService

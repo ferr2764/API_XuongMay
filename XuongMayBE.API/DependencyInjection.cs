@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using XuongMay.Contract.Repositories.Entity;
+﻿using MongoDB.Driver;
 using XuongMay.Contract.Services.Interface;
-using XuongMay.Repositories.Context;
-using XuongMay.Repositories.Entity;
 using XuongMay.Services;
 using XuongMay.Services.Service;
 
@@ -14,8 +10,7 @@ namespace XuongMayBE.API
         public static void AddConfig(this IServiceCollection services, IConfiguration configuration)
         {
             services.ConfigRoute();
-            services.AddDatabase(configuration);
-            services.AddIdentity();
+            services.AddMongoDb(configuration);
             services.AddInfrastructure(configuration);
             services.AddServices();
         }
@@ -26,27 +21,29 @@ namespace XuongMayBE.API
                 options.LowercaseUrls = true;
             });
         }
-        public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DatabaseContext>(options =>
+            var connectionString = configuration["ConnectionStrings:MongoDb"];
+            var databaseName = configuration["MongoDbDatabase"];
+
+            services.AddSingleton<IMongoClient>(sp =>
             {
-                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"));
+                return new MongoClient(connectionString);
+            });
+
+            services.AddSingleton(sp =>
+            {
+                var client = sp.GetRequiredService<IMongoClient>();
+                return client.GetDatabase(databaseName);
             });
         }
 
-        public static void AddIdentity(this IServiceCollection services)
-        {
-            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-            {
-            })
-             .AddEntityFrameworkStores<DatabaseContext>()
-             .AddDefaultTokenProviders();
-        }
+
         public static void AddServices(this IServiceCollection services)
         {
-            services
+            /*services
                 //.AddScoped<IUserService, UserService>()
-                .AddScoped<IUserService, UserService>();
+                .AddScoped<IUserService, UserService>();*/
         }
     }
 }

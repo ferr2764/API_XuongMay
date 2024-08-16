@@ -23,8 +23,8 @@ namespace XuongMayBE.API
         }
         public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration["MongoDB:ConnectionString"];
-            var databaseName = configuration["MongoDB:DatabaseName"];
+            var connectionString = configuration["ConnectionStrings:MongoDb"];
+            var databaseName = configuration["MongoDbDatabase"];
 
             services.AddSingleton<IMongoClient>(sp =>
             {

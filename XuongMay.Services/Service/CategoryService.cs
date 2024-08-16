@@ -38,7 +38,7 @@ namespace XuongMay.Services.Service
         {
             var repository = _unitOfWork.GetRepository<Category>();
             await repository.InsertAsync(category);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
             return category;
         }
 
@@ -57,7 +57,7 @@ namespace XuongMay.Services.Service
             existingCategory.CategoryDescription = category.CategoryDescription;
 
             repository.Update(existingCategory);
-            await _unitOfWork.SaveAsync();
+           // await _unitOfWork.SaveAsync();
 
             return existingCategory;
         }
@@ -73,7 +73,7 @@ namespace XuongMay.Services.Service
                 return false;
 
             await repository.DeleteAsync(objectId);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
             return true;
         }

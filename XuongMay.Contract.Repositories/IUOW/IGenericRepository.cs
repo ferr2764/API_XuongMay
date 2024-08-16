@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using XuongMay.Core;
 
+
 namespace XuongMay.Contract.Repositories.IUOW
 {
     public interface IGenericRepository<T> where T : class

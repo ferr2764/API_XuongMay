@@ -1,18 +1,22 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-public class OrderDetail
+
+namespace XuongMay.Contract.Repositories.Entity
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
+    public class OrderDetail
+    {
+        [BsonId]
+        public ObjectId Id { get; set; }
 
-    [BsonElement("numberOfProds")]
-    public int NumberOfProds { get; set; }
+        [BsonElement("numberOfProds")]
+        public int NumberOfProds { get; set; }
 
-    [BsonElement("status")]
-    public string Status { get; set; }
+        [BsonElement("status")]
+        public string OrderDetailStatus { get; set; }
 
-    [BsonElement("orderId")]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public ObjectId OrderId { get; set; }
+        [BsonElement("orderId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId OrderId { get; set; }
+    }
 }

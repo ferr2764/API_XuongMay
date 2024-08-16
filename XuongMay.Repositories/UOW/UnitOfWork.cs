@@ -5,51 +5,54 @@ using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Repositories.IUOW;
 
-public class UnitOfWork : IUnitOfWork
+namespace XuongMay.Repositories.UOW
 {
-    private readonly IMongoDatabase _database;
-    private readonly IClientSessionHandle _session;
-    private readonly ConcurrentDictionary<Type, object> _repositories;
-
-    public UnitOfWork(IMongoClient mongoClient, string databaseName)
+    public class UnitOfWork : IUnitOfWork
     {
-        _database = mongoClient.GetDatabase(databaseName);
-        _session = mongoClient.StartSession();
-        _repositories = new ConcurrentDictionary<Type, object>();
-    }
+        private readonly IMongoDatabase _database;
+        private readonly IClientSessionHandle _session;
+        private readonly ConcurrentDictionary<Type, object> _repositories;
 
-    public IGenericRepository<T> GetRepository<T>() where T : class
-    {
-        return (IGenericRepository<T>)_repositories.GetOrAdd(typeof(T), (type) => new GenericRepository<T>(_database));
-    }
+        public UnitOfWork(IMongoClient mongoClient, string databaseName)
+        {
+            _database = mongoClient.GetDatabase(databaseName);
+            _session = mongoClient.StartSession();
+            _repositories = new ConcurrentDictionary<Type, object>();
+        }
 
-    public void Save()
-    {
-        _session.CommitTransaction();
-    }
+        public IGenericRepository<T> GetRepository<T>() where T : class
+        {
+            return (IGenericRepository<T>)_repositories.GetOrAdd(typeof(T), (type) => new GenericRepository<T>(_database));
+        }
 
-    public async Task SaveAsync()
-    {
-        await _session.CommitTransactionAsync();
-    }
+        public void Save()
+        {
+            _session.CommitTransaction();
+        }
 
-    public void BeginTransaction()
-    {
-        _session.StartTransaction();
-    }
+        public async Task SaveAsync()
+        {
+            await _session.CommitTransactionAsync();
+        }
 
-    public void CommitTransaction()
-    {
-        _session.CommitTransaction();
-    }
+        public void BeginTransaction()
+        {
+            _session.StartTransaction();
+        }
 
-    public void RollBackTransaction()
-    {
-        _session.AbortTransaction();
-    }
+        public void CommitTransaction()
+        {
+            _session.CommitTransaction();
+        }
 
-    public void Dispose()
-    {
-        _session?.Dispose();
+        public void RollBackTransaction()
+        {
+            _session.AbortTransaction();
+        }
+
+        public void Dispose()
+        {
+            _session?.Dispose();
+        }
     }
 }

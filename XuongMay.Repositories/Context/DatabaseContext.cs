@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
+using XuongMay.Contract.Repositories.Entity;
 
 public class DatabaseContext
 {

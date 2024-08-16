@@ -48,6 +48,11 @@ namespace XuongMayBE.API
                 //.AddScoped<IUserService, UserService>()
                 .AddScoped<IUserService, UserService>();*/
             services.AddScoped<IAuthService, AuthService>();
+<<<<<<< Updated upstream
+=======
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IOrderService, OrderService>();
+>>>>>>> Stashed changes
         }
     }
 }

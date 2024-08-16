@@ -1,23 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using XuongMay.Contract.Repositories.Entity;
-using XuongMay.Repositories.Entity;
+﻿using MongoDB.Driver;
+using Microsoft.Extensions.Configuration;
 
-namespace XuongMay.Repositories.Context
+public class DatabaseContext
 {
-    public class DatabaseContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaims, ApplicationUserRoles, ApplicationUserLogins, ApplicationRoleClaims, ApplicationUserTokens>
+    private readonly IMongoDatabase _database;
+
+    public DatabaseContext(IConfiguration configuration)
     {
-        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
-
-        // user
-        public virtual DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
-        public virtual DbSet<ApplicationRole> ApplicationRoles => Set<ApplicationRole>();
-        public virtual DbSet<ApplicationUserClaims> ApplicationUserClaims => Set<ApplicationUserClaims>();
-        public virtual DbSet<ApplicationUserRoles> ApplicationUserRoles => Set<ApplicationUserRoles>();
-        public virtual DbSet<ApplicationUserLogins> ApplicationUserLogins => Set<ApplicationUserLogins>();
-        public virtual DbSet<ApplicationRoleClaims> ApplicationRoleClaims => Set<ApplicationRoleClaims>();
-        public virtual DbSet<ApplicationUserTokens> ApplicationUserTokens => Set<ApplicationUserTokens>();
-
-        public virtual DbSet<UserInfo> UserInfos => Set<UserInfo>();
+        var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
+        _database = client.GetDatabase(configuration["DatabaseName"]);
     }
+
+    public IMongoCollection<Account> Accounts => _database.GetCollection<Account>("Accounts");
+    public IMongoCollection<Order> Orders => _database.GetCollection<Order>("Orders");
+    public IMongoCollection<OrderDetail> OrderDetails => _database.GetCollection<OrderDetail>("OrderDetails");
+    public IMongoCollection<Category> Categories => _database.GetCollection<Category>("Categories");
+    public IMongoCollection<Product> Products => _database.GetCollection<Product>("Products");
 }

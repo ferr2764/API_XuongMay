@@ -1,84 +1,49 @@
-﻿using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Entity;
-using XuongMay.Contract.Repositories.Interface;
-using XuongMay.Contract.Services.Interface;
 
-namespace XuongMay.Services.Service
+public class AccountService : IAccountService
 {
-    public class AccountService : IAccountService
+    private readonly IMongoCollection<Account> _accounts;
+
+    public AccountService(IMongoDatabase database)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _accounts = database.GetCollection<Account>("Accounts");
+    }
 
-        public AccountService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    //Get account By Id
+    public async Task<Account> GetAccountByIdAsync(string id)
+    {
+        ObjectId objectId = ObjectId.Parse(id);
+        return await _accounts.Find(a => a.Id == objectId).FirstOrDefaultAsync();
+    }
+    
+    //Get account By Role
+    public async Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role)
+    {
+        return await _accounts.Find(a => a.Role == role).ToListAsync();
+    }
+    
+    //Get all accounts
+    public async Task<IEnumerable<Account>> GetAllAccountsAsync()
+    {
+        return await _accounts.Find(a => true).ToListAsync();
+    }
+   
+    //Update account
+    public async Task UpdateAccountByIdAsync(string id, Account updatedAccount)
+    {
+        ObjectId objectId = ObjectId.Parse(id);
 
-        public async Task<IEnumerable<Account>> GetAllAccountsAsync()
-        {
-            var repository = _unitOfWork.GetRepository<Account>();
-            return await repository.GetAllAsync();
-        }
+        // Define the fields to update
+        var updateDefinition = Builders<Account>.Update
+            .Set(a => a.Name, updatedAccount.Name)
+            .Set(a => a.Username, updatedAccount.Username)
+            .Set(a => a.Password, updatedAccount.Password)
+            .Set(a => a.Role, updatedAccount.Role)
+            .Set(a => a.Salary, updatedAccount.Salary);
 
-        public async Task<Account> GetAccountByIdAsync(string id)
-        {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return null;
-
-            var repository = _unitOfWork.GetRepository<Account>();
-            return await repository.GetByIdAsync(objectId);
-        }
-
-        public async Task<Account> CreateAccountAsync(Account account)
-        {
-            var repository = _unitOfWork.GetRepository<Account>();
-            await repository.InsertAsync(account);
-            await _unitOfWork.SaveAsync();
-            return account;
-        }
-
-        public async Task<Account> UpdateAccountAsync(string id, Account account)
-        {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return null;
-
-            var repository = _unitOfWork.GetRepository<Account>();
-            var existingAccount = await repository.GetByIdAsync(objectId);
-            if (existingAccount == null)
-                return null;
-
-            // Update các thuộc tính cần thiết
-            existingAccount.Name = account.Name;
-            existingAccount.Username = account.Username;
-            existingAccount.Password = account.Password;
-            existingAccount.Role = account.Role;
-            existingAccount.Salary = account.Salary;
-
-            repository.Update(existingAccount);
-            await _unitOfWork.SaveAsync();
-
-            return existingAccount;
-        }
-
-        public async Task<bool> DeleteAccountAsync(string id)
-        {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return false;
-
-            var repository = _unitOfWork.GetRepository<Account>();
-            var account = await repository.GetByIdAsync(objectId);
-            if (account == null)
-                return false;
-
-            await repository.DeleteAsync(objectId);
-            await _unitOfWork.SaveAsync();
-
-            return true;
-        }
+        // Execute the update
+        await _accounts.UpdateOneAsync(a => a.Id == objectId, updateDefinition);
     }
 }

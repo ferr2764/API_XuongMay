@@ -1,4 +1,8 @@
-﻿namespace XuongMay.Contract.Repositories.Interface
+﻿using System;
+using System.Threading.Tasks;
+using XuongMay.Contract.Repositories.IUOW;
+
+namespace XuongMay.Contract.Repositories.Interface
 {
     public interface IUnitOfWork : IDisposable
     {
@@ -7,6 +11,6 @@
         Task SaveAsync();
         void BeginTransaction();
         void CommitTransaction();
-        void RollBack();
+        void RollBackTransaction();
     }
 }

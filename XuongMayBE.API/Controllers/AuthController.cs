@@ -18,7 +18,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModelView account)
+        public async Task<IActionResult> Register([FromBody] Account account)
         {
             if (account == null)
             {

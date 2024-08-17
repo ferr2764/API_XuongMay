@@ -5,6 +5,6 @@ namespace XuongMay.Contract.Services.Interface
     public interface IAuthService
     {
         Task RegisterUserAsync(Account account);
-        Task<Account> AuthenticateUserAsync(string username, string password);
+        Task<(string Token, Account User)> AuthenticateUserAsync(string username, string password);
     }
 }

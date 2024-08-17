@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Services.Interface;
 
 namespace XuongMayBE.API.Controllers
 {

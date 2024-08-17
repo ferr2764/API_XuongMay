@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 
-namespace XuongMay.Services
+namespace XuongMay.Services.Service
 {
     public class AuthService : IAuthService
     {

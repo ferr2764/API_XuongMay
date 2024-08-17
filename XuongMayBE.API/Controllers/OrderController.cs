@@ -18,10 +18,16 @@ namespace XuongMayBE.API.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("{id}")]
+        public IActionResult GetOrderById()
         {
-            return Ok("Hello, world!");
+            return Ok();
+        }
+
+        [HttpGet]
+        public IActionResult GetAllOrder()
+        {
+            return Ok();
         }
 
         [HttpPost]
@@ -42,5 +48,19 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateOrder()
+        {
+            return Ok();
+        }
+
+        [HttpPut("assign/{id}")]
+        public IActionResult AssignOrder()
+        {
+            return Ok();
+        }
+
     }
 }

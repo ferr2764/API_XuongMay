@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Repositories.Entity;
 
 namespace XuongMayBE.API.Controllers
@@ -27,6 +28,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // GET api/account/role/{role}
+        [Authorize(Roles = "Manager")]
         [HttpGet("role/{role}")]
         public async Task<IActionResult> GetAccountsByRole(string role)
         {
@@ -35,6 +37,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // GET api/account
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllAccounts()
         {

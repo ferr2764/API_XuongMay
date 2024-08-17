@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Services.Interface;
 
 namespace XuongMay.Services.Service
 {

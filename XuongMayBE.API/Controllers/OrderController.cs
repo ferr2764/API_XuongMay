@@ -48,8 +48,16 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
         [HttpPut("{id}")]
         public IActionResult UpdateOrder()
+        {
+            return Ok();
+        }
+
+        [HttpPut("assign/{id}")]
+        public IActionResult AssignOrder()
         {
             return Ok();
         }

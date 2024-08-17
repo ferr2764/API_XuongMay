@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -39,6 +40,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // POST: api/category
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] Category category)
         {
@@ -52,6 +54,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // PUT: api/category/{id}
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(string id, [FromBody] Category category)
         {
@@ -72,6 +75,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // DELETE: api/category/{id}
+        [Authorize(Roles = "Manager")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {

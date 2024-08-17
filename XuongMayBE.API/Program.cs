@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddConfig(builder.Configuration);
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // Register CategoryService and ProductService
 builder.Services.AddScoped<ICategoryService, CategoryService>();

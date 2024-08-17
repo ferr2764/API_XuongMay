@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCore.Identity.MongoDbCore.Models;
+using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.AuthModelViews;
@@ -46,8 +47,8 @@ namespace XuongMayBE.API.Controllers
 
             try
             {
-                var user = await _authService.AuthenticateUserAsync(loginRequest.Username, loginRequest.Password);
-                return Ok(new { Message = "Login successful", User = user });
+                var (token, user) = await _authService.AuthenticateUserAsync(loginRequest.Username, loginRequest.Password);
+                return Ok(new { Message = "Login successful", Token = token, User = user });
             }
             catch (Exception ex)
             {

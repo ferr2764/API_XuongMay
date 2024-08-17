@@ -4,7 +4,7 @@ using XuongMay.Contract.Services.Interface;
 using BCrypt.Net;
 using System.Threading.Tasks;
 
-namespace XuongMay.Services
+namespace XuongMay.Services.Service
 {
     public class AuthService : IAuthService
     {

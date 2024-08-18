@@ -20,11 +20,20 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync()
+        public async Task<IEnumerable<OrderDetail>> GetPaginatedOrderDetailsAsync(int pageNumber, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            return await repository.GetAllAsync();
+            var orderDetails = await repository.GetAllAsync();
+
+            // Apply pagination using Skip and Take
+            var pagedOrderDetails = orderDetails
+                                    .Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+            return pagedOrderDetails;
         }
+
 
         public async Task<OrderDetail> GetOrderDetailByIdAsync(string id)
         {

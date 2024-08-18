@@ -41,11 +41,12 @@ namespace XuongMayBE.API.Controllers
         /// <returns>A list of all orders.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders(int pageNumber = 1, int pageSize = 5)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return Ok(orders);
+            var pagedOrders = await _orderService.GetPaginatedOrdersAsync(pageNumber, pageSize);
+            return Ok(pagedOrders);
         }
+
 
         /// <summary>
         /// Create a new order.

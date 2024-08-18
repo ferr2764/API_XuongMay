@@ -25,10 +25,10 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <returns>A list of all products.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 5)
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
+            var pagedProducts = await _productService.GetPaginatedProductsAsync(pageNumber, pageSize);
+            return Ok(pagedProducts);
         }
 
 
@@ -125,7 +125,7 @@ namespace XuongMayBE.API.Controllers
         /// <param name="id">The ID of the product to delete.</param>
         /// <returns>No content if the deletion is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpDelete("{id}")]
+        [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             if (!ObjectId.TryParse(id, out _))

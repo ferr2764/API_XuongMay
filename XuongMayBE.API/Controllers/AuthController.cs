@@ -60,7 +60,7 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var (token, user) = await _authService.AuthenticateUserAsync(loginRequest.Username, loginRequest.Password);
-                return Ok(new { Message = "Login successful", Token = token, User = user });
+                return Ok(new { Message = "Login successful", Token = token, user.Name, user.Username, user.Status, user.Salary});
             }
             catch (Exception ex)
             {

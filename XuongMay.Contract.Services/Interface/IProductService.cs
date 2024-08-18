@@ -10,7 +10,7 @@ namespace XuongMay.Contract.Services.Interface
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
+        Task<IEnumerable<Product>> GetPaginatedProductsAsync(int pageNumber, int pageSize);
         Task<Product> GetProductByIdAsync(string id);
         Task<Product> CreateProductAsync(CreateProductModelView product);
         Task<Product> UpdateProductAsync(string id, Product product);

@@ -17,11 +17,19 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        public async Task<IEnumerable<Order>> GetPaginatedOrdersAsync(int pageNumber, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<Order>();
-            return await repository.GetAllAsync();
+            var orders = await repository.GetAllAsync();
+
+            var pagedOrders = orders
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToList();
+
+            return pagedOrders;
         }
+
 
         public async Task<Order> GetOrderByIdAsync(string id)
         {

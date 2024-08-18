@@ -89,5 +89,25 @@ namespace XuongMay.Services.Service
 
             return true;
         }
+
+        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
+        {
+            Order order = new();
+            order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
+            //order.Id = ObjectId.Parse(assignOrderModelView.OrderId);
+            order.Id = ObjectId.Parse(id);
+
+            var repository = _unitOfWork.GetRepository<Order>();
+            var existingOrder = await repository.GetByIdAsync(order.Id);
+            if (existingOrder == null)
+                return null;
+
+            existingOrder.AssignedAccountId = order.AssignedAccountId;
+
+            repository.Update(existingOrder);
+            //await _unitOfWork.SaveAsync();
+
+            return existingOrder;
+        }
     }
 }

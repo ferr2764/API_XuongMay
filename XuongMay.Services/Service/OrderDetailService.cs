@@ -59,7 +59,6 @@ namespace XuongMay.Services.Service
             if (existingOrderDetail == null)
                 return null;
 
-            // Update các thuộc tính cần thiết
             existingOrderDetail.Status = orderDetail.Status;
             existingOrderDetail.NumberOfProds = orderDetail.NumberOfProds;
 

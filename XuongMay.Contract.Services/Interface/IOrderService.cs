@@ -15,5 +15,7 @@ namespace XuongMay.Contract.Services.Interface
         Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel);
         Task<Order> UpdateOrderAsync(string id, Order order);
         Task<bool> DeleteOrderAsync(string id);
+
+        Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id);
     }
 }

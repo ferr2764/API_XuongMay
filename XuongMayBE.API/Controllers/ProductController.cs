@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using MongoDB.Bson;
 using XuongMay.ModelViews.ProductModelViews;
+using Microsoft.AspNetCore.Authorization;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -40,6 +39,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // POST: api/product
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductModelView product)
         {
@@ -53,6 +53,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // PUT: api/product/{id}
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
         {
@@ -72,6 +73,7 @@ namespace XuongMayBE.API.Controllers
         }
 
         // DELETE: api/product/{id}
+        [Authorize(Roles = "Manager")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {

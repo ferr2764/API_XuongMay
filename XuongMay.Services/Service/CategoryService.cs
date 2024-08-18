@@ -1,9 +1,4 @@
 ﻿using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -55,6 +50,7 @@ namespace XuongMay.Services.Service
             // Update các thuộc tính cần thiết
             existingCategory.CategoryName = category.CategoryName;
             existingCategory.CategoryDescription = category.CategoryDescription;
+            existingCategory.CategoryStatus = category.CategoryStatus;
 
             repository.Update(existingCategory);
            // await _unitOfWork.SaveAsync();

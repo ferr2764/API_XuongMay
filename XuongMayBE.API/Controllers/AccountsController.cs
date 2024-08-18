@@ -65,5 +65,21 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // PUT api/account/{id}/delete
+        [Authorize(Roles = "Manager")]
+        [HttpPut("{id}/delete")]
+        public async Task<IActionResult> DeleteAccount(string id)
+        {
+            try
+            {
+                await _accountService.DeleteProductByIdAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+        }
     }
 }

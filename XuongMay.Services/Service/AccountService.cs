@@ -1,6 +1,7 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
 
 namespace XuongMay.Services.Service
@@ -8,10 +9,12 @@ namespace XuongMay.Services.Service
     public class AccountService : IAccountService
     {
         private readonly IMongoCollection<Account> _accounts;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(IMongoDatabase database)
+        public AccountService(IMongoDatabase database, IUnitOfWork unitOfWork)
         {
             _accounts = database.GetCollection<Account>("Accounts");
+            _unitOfWork = unitOfWork;
         }
 
         //Get account By Id
@@ -34,20 +37,42 @@ namespace XuongMay.Services.Service
         }
 
         //Update account
-        public async Task UpdateAccountByIdAsync(string id, Account updatedAccount)
+        public async Task<Account> UpdateAccountAsync(string id, Account account)
         {
-            ObjectId objectId = ObjectId.Parse(id);
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
 
-            // Define the fields to update
-            var updateDefinition = Builders<Account>.Update
-                .Set(a => a.Name, updatedAccount.Name)
-                .Set(a => a.Username, updatedAccount.Username)
-                .Set(a => a.Password, updatedAccount.Password)
-                .Set(a => a.Role, updatedAccount.Role)
-                .Set(a => a.Salary, updatedAccount.Salary);
+            var repository = _unitOfWork.GetRepository<Account>();
+            var existingAccount = await repository.GetByIdAsync(objectId);
+            if (existingAccount == null)
+                return null;
 
-            // Execute the update
-            await _accounts.UpdateOneAsync(a => a.Id == objectId, updateDefinition);
+            // Update thuộc tính
+            existingAccount.Name = account.Name;
+            existingAccount.Password = account.Password;
+            existingAccount.Status = account.Status;
+            existingAccount.Salary = account.Salary;
+
+            repository.Update(existingAccount);
+
+            return existingAccount;
         }
+
+        public async Task<bool> DeleteAccountAsync(string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return false;
+
+            var repository = _unitOfWork.GetRepository<Account>();
+            var account = await repository.GetByIdAsync(objectId);
+            if (account == null)
+                return false;
+
+            await repository.DeleteAsync(objectId);
+            //await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
     }
 }

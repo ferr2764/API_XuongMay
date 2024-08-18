@@ -19,16 +19,16 @@ namespace XuongMayBE.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] Account account)
+        public async Task<IActionResult> Register([FromBody] RegisterModelView registerModel)
         {
-            if (account == null)
+            if (registerModel == null)
             {
                 return BadRequest("Invalid registration data.");
             }
 
             try
             {
-                await _authService.RegisterUserAsync(account);
+                await _authService.RegisterUserAsync(registerModel);
                 return Ok("User registered successfully.");
             }
             catch (Exception ex)

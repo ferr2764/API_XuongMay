@@ -6,6 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using XuongMay.ModelViews.AuthModelViews;
+using MongoDB.Bson;
 
 namespace XuongMay.Services.Service
 {
@@ -20,22 +22,28 @@ namespace XuongMay.Services.Service
             _configuration = configuration;
         }
 
-        public async Task RegisterUserAsync(Account account)
+        public async Task RegisterUserAsync(RegisterModelView registerModel)
         {
             // Check if the user already exists
-            var existingUser = await _accounts.Find(a => a.Username == account.Username).FirstOrDefaultAsync();
+            var existingUser = await _accounts.Find(a => a.Username == registerModel.Username).FirstOrDefaultAsync();
             if (existingUser != null)
             {
                 throw new Exception("User already exists");
             }
-
-            account.Role = "Customer";
-            account.Salary = 1000;
-            // Hash the password
-            account.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+            // Create a new Account entity from the RegisterModelView
+            var newAccount = new Account
+            {
+                Id = ObjectId.GenerateNewId(),
+                Name = registerModel.Name,
+                Username = registerModel.Username,
+                Password = BCrypt.Net.BCrypt.HashPassword(registerModel.Password),
+                Role = "Customer", 
+                Salary = 1000,
+                Status = "Available"
+            };
 
             // Insert the user into the MongoDB collection
-            await _accounts.InsertOneAsync(account);
+            await _accounts.InsertOneAsync(newAccount);
         }
 
         public async Task<(string Token, Account User)> AuthenticateUserAsync(string username, string password)

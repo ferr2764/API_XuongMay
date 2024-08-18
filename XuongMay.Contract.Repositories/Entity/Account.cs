@@ -23,5 +23,8 @@ namespace XuongMay.Contract.Repositories.Entity
 
         [BsonElement("salary")]
         public int? Salary { get; set; }
+
+        [BsonElement("status")]
+        public string? Status { get; set; }
     }
 }

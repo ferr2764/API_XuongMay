@@ -92,7 +92,7 @@ namespace XuongMay.Repositories.UOW
         {
             await _collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", id));
         }
-
+   
         public async Task SaveAsync()
         {
             // MongoDB operations are immediately committed; no-op here.

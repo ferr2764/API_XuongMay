@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.Services.Service;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -63,12 +65,14 @@ namespace XuongMayBE.API.Controllers
         }
 
         // PUT api/account/{id}
+
         /// <summary>
         /// Update an account by ID.
         /// </summary>
         /// <param name="id">The ID of the account to update.</param>
         /// <param name="updatedAccount">The updated account details.</param>
         /// <returns>No content if the update is successful.</returns>
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] Account updatedAccount)
         {
@@ -79,7 +83,7 @@ namespace XuongMayBE.API.Controllers
 
             try
             {
-                await _accountService.UpdateAccountByIdAsync(id, updatedAccount);
+                await _accountService.UpdateAccountAsync(id, updatedAccount);
                 return NoContent();
             }
             catch (Exception ex)
@@ -88,6 +92,21 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
+  // PUT api/account/{id}/delete
+  [Authorize(Roles = "Manager")]
+  [HttpPut("{id}/delete")]
+  public async Task<IActionResult> DeleteAccount(string id)
+  {
+      try
+      {
+          await _accountService.DeleteAccountAsync(id);
+          return NoContent();
+      }
+      catch (Exception ex)
+      {
+          return NotFound(new { Message = ex.Message });
+      }
+  }
         // PATCH api/account/{id}/role
         /// <summary>
         /// Update the role of an account.

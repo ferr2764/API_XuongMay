@@ -1,9 +1,4 @@
 ﻿using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -76,11 +71,14 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Product>();
-            var product = await repository.GetByIdAsync(objectId);
-            if (product == null)
+            var existingProduct = await repository.GetByIdAsync(objectId);
+            if (existingProduct == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
+            // Update trạng thái thành Unavailable
+            existingProduct.Status = "Unavailable";
+           
+            repository.Update(existingProduct);
             //await _unitOfWork.SaveAsync();
 
             return true;

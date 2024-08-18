@@ -2,6 +2,7 @@
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.ProductModelViews;
 
 namespace XuongMay.Services.Service
 {
@@ -29,8 +30,13 @@ namespace XuongMay.Services.Service
             return await repository.GetByIdAsync(objectId);
         }
 
-        public async Task<Product> CreateProductAsync(Product product)
+        public async Task<Product> CreateProductAsync(CreateProductModelView createProduct)
         {
+            Product product = new Product();
+            product.ProductName = createProduct.ProductName;
+            product.ProductSize = createProduct.ProductSize;
+            product.Status = "Available";
+            product.CategoryId = ObjectId.Parse(createProduct.CategoryId);
             var repository = _unitOfWork.GetRepository<Product>();
             await repository.InsertAsync(product);
             //await _unitOfWork.SaveAsync();

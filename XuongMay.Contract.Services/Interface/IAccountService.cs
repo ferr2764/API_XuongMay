@@ -9,5 +9,6 @@ namespace XuongMay.Contract.Services.Interface
         Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task<Account> UpdateAccountAsync(string id, Account account);
         Task<bool> DeleteAccountAsync(string id);
+        Task UpdateAccountRoleAsync(string accountId, string newRole);
     }
 }

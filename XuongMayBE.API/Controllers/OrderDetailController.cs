@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.OrderDetailModelView;
+using XuongMay.Services.Service;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -14,28 +17,54 @@ namespace XuongMayBE.API.Controllers
             _orderDetailService = orderDetailService;
         }
 
+        /// <summary>
+        /// Get an order detail by ID.
+        /// </summary>
+        /// <param name="id">The ID of the order detail.</param>
+        /// <returns>The order detail.</returns>
         [HttpGet("{id}")]
-        public IActionResult GetOrderDetailById()
+        public async Task<IActionResult> GetOrderDetailById(string id)
         {
-            return Ok();
+            var orderDetail = await _orderDetailService.GetOrderDetailByIdAsync(id);
+            if (orderDetail == null)
+            {
+                return NotFound();
+            }
+            return Ok(orderDetail);
         }
 
+        /// <summary>
+        /// Get all order details.
+        /// </summary>
+        /// <returns>A list of all order details.</returns>
         [HttpGet]
-        public IActionResult GetAllOrderDetail()
+        public async Task<IActionResult> GetAllOrderDetails()
         {
-            return Ok();
+            var orderDetails = await _orderDetailService.GetAllOrderDetailsAsync();
+            return Ok(orderDetails);
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("order/{orderId}")]
         public IActionResult GetOrderDetailByOrderId()
         {
             return Ok();
         }
 
+        /// <summary>
+        /// Create a new order detail.
+        /// </summary>
+        /// <param name="orderDetail">The order detail data to create.</param>
+        /// <returns>The created order detail.</returns>
         [HttpPost]
-        public IActionResult CreateOrderDetail()
+        public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView orderDetail)
         {
-            return Ok();
+            if (orderDetail == null)
+            {
+                return BadRequest("Order Detail data is null.");
+            }
+
+            var createdOrderDetail = await _orderDetailService.CreateOrderDetailAsync(orderDetail);
+            return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
         }
 
         [HttpPut("{id}")]

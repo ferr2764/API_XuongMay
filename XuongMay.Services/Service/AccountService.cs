@@ -78,5 +78,23 @@ namespace XuongMay.Services.Service
             return true;
         }
 
+        // Update account role
+        public async Task UpdateAccountRoleAsync(string accountId, string newRole)
+        {
+            ObjectId objectId = ObjectId.Parse(accountId);
+
+            // Update the role field of the account
+            var updateDefinition = Builders<Account>.Update
+                .Set(a => a.Role, newRole);
+
+            // Execute the update
+            var result = await _accounts.UpdateOneAsync(a => a.Id == objectId, updateDefinition);
+
+            if (result.MatchedCount == 0)
+            {
+                throw new Exception("Account not found.");
+            }
+        }
+
     }
 }

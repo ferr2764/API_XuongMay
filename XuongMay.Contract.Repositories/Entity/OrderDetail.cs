@@ -15,6 +15,10 @@ namespace XuongMay.Contract.Repositories.Entity
         [BsonElement("status")]
         public string Status { get; set; }
 
+        [BsonElement("productId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId ProductId { get; set; }
+
         [BsonElement("orderId")]
         [BsonRepresentation(BsonType.ObjectId)]
         public ObjectId OrderId { get; set; }

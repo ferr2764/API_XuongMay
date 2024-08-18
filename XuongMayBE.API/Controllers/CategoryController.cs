@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.CategoryModelViews;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -56,7 +57,7 @@ namespace XuongMayBE.API.Controllers
         /// <returns>The created category details.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] Category category)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryModelView category)
         {
             if (category == null)
             {
@@ -94,18 +95,18 @@ namespace XuongMayBE.API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/category/{id}
+        // PATCH: api/category/{id}
         /// <summary>
-        /// Delete a category.
+        /// Mark a category as deleted (e.g., by setting its status to "Unavailable").
         /// </summary>
-        /// <param name="id">The ID of the category to delete.</param>
-        /// <returns>No content if the deletion is successful.</returns>
+        /// <param name="id">The ID of the category to "delete".</param>
+        /// <returns>No content if the operation is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
-            var isDeleted = await _categoryService.DeleteCategoryAsync(id);
-            if (!isDeleted)
+            var isUnavailable = await _categoryService.DeleteCategoryAsync(id);
+            if (!isUnavailable)
             {
                 return NotFound();
             }

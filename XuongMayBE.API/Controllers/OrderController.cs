@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderModelViews;
@@ -38,6 +39,7 @@ namespace XuongMayBE.API.Controllers
         /// Get all orders.
         /// </summary>
         /// <returns>A list of all orders.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -50,6 +52,7 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <param name="model">The order details for creation.</param>
         /// <returns>The created order details.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderModelView model)
         {
@@ -69,13 +72,14 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public IActionResult UpdateOrder()
         {
             return Ok();
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPut("assign/{id}")]
         public async Task<IActionResult> AssignOrder([FromBody] AssignOrderModelView assignOrderModelView, string id)
         {

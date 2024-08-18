@@ -115,7 +115,7 @@ namespace XuongMay.Services.Service
             }
 
             repository.Update(order);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
             return order;
         }

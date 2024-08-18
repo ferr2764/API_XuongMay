@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.Services.Service;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -46,8 +48,8 @@ namespace XuongMayBE.API.Controllers
             return Ok(accounts);
         }
 
-        // PATCH api/account/{id}
-        [HttpPatch("{id}")]
+        // PUT api/account/{id}
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] Account updatedAccount)
         {
             if (updatedAccount == null)

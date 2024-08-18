@@ -94,6 +94,19 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut("cancel/{id}")]
+        public async Task<IActionResult> CancelOrder(string id)
+        {
+            try
+            {
+                var response = await _orderService.CancelOrderAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

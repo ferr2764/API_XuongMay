@@ -52,7 +52,7 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <param name="model">The order details for creation.</param>
         /// <returns>The created order details.</returns>
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderModelView model)
         {
@@ -105,6 +105,30 @@ namespace XuongMayBE.API.Controllers
             {
                 var response = await _orderService.CancelOrderAsync(id);
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Move an order to the next status in the workflow.
+        /// </summary>
+        /// <param name="id">The ID of the order to update.</param>
+        /// <returns>The updated order with the new status.</returns>
+        [HttpPut("{id}/status/next")]
+        public async Task<IActionResult> MoveToNextStatus(string id)
+        {
+            try
+            {
+                var order = await _orderService.MoveToNextStatusAsync(id);
+                if (order == null)
+                {
+                    return BadRequest("Unable to move to the next status. Order may be completed or invalid.");
+                }
+
+                return Ok(order);
             }
             catch (Exception ex)
             {

@@ -115,7 +115,7 @@ namespace XuongMay.Services.Service
             }
 
             repository.Update(order);
-            //await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
 
             return order;
         }
@@ -134,9 +134,29 @@ namespace XuongMay.Services.Service
             order.Status = "Cancelled";
 
             repository.Update(order);
-            //await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
 
             return true;
+        }
+
+        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
+
+            var repository = _unitOfWork.GetRepository<Order>();
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null)
+                return null;
+
+            // Gán đơn hàng cho nhân viên
+            order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
+            order.Status = "Assigned";
+
+            repository.Update(order);
+            //await _unitOfWork.SaveAsync();
+
+            return order;
         }
 
         public async Task UpdateOrderAsync(Order order)

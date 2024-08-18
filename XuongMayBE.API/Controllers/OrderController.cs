@@ -77,9 +77,22 @@ namespace XuongMayBE.API.Controllers
         }
 
         [HttpPut("assign/{id}")]
-        public IActionResult AssignOrder()
+        public async Task<IActionResult> AssignOrder([FromBody] AssignOrderModelView assignOrderModelView, string id)
         {
-            return Ok();
+            if (assignOrderModelView == null)
+            {
+                return BadRequest("Invalid Account data.");
+            }
+
+            try
+            {
+                var response = await _orderService.AssignOrderAsync(assignOrderModelView, id);
+                return CreatedAtAction(nameof(GetOrderById), new { id = response.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

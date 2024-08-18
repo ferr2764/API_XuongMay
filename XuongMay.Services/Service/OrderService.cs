@@ -1,8 +1,5 @@
 ﻿using MongoDB.Bson;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
@@ -37,14 +34,16 @@ namespace XuongMay.Services.Service
 
         public async Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel)
         {
-            Order order = new Order();
-            order.AccountId = ObjectId.Parse(orderViewModel.AccountId);
-            order.Deadline = orderViewModel.Deadline;
-            order.Status = "Created";
-            order.CreatedDate = DateTime.Now;
+            Order order = new Order
+            {
+                AccountId = ObjectId.Parse(orderViewModel.AccountId),
+                Deadline = orderViewModel.Deadline,
+                Status = "Created",
+                CreatedDate = DateTime.Now
+            };
+
             var repository = _unitOfWork.GetRepository<Order>();
             await repository.InsertAsync(order);
-            //await _unitOfWork.SaveAsync();
             return order;
         }
 
@@ -82,7 +81,6 @@ namespace XuongMay.Services.Service
 
             // Update trạng thái thành Unavailable
             existingOrder.Status = "Unavailable";
-            
 
             repository.Update(existingOrder);
             await _unitOfWork.SaveAsync();
@@ -90,42 +88,69 @@ namespace XuongMay.Services.Service
             return true;
         }
 
-        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
+        public async Task<Order> MoveToNextStatusAsync(string id)
         {
-            Order order = new();
-            order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
-            //order.Id = ObjectId.Parse(assignOrderModelView.OrderId);
-            order.Id = ObjectId.Parse(id);
-
-            var repository = _unitOfWork.GetRepository<Order>();
-            var existingOrder = await repository.GetByIdAsync(order.Id);
-            if (existingOrder == null)
+            if (!ObjectId.TryParse(id, out var objectId))
                 return null;
 
-            existingOrder.AssignedAccountId = order.AssignedAccountId;
-
-            repository.Update(existingOrder);
-            //await _unitOfWork.SaveAsync();
-
-            return existingOrder;
-        }
-
-        public async Task<Order> CancelOrderAsync(string id)
-        {
-            Order order = new();
-            order.Id = ObjectId.Parse(id);
             var repository = _unitOfWork.GetRepository<Order>();
-            var existingOrder = await repository.GetByIdAsync(order.Id);
-            if (existingOrder == null)
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null)
                 return null;
-            existingOrder.Status = "Canceled";
 
-            repository.Update(existingOrder);
+            // Chuyển trạng thái theo thứ tự
+            switch (order.Status)
+            {
+                case "Created":
+                    order.Status = "Assigned";
+                    break;
+                case "Assigned":
+                    order.Status = "Completed";
+                    order.FinishDate = DateTime.Now;
+                    break;
+                case "Completed":
+                    return null; // Không thể chuyển trạng thái từ Completed
+                default:
+                    return null;
+            }
+
+            repository.Update(order);
             //await _unitOfWork.SaveAsync();
 
-            return existingOrder;
+            return order;
         }
 
+        public async Task<bool> CancelOrderAsync(string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return false;
 
+            var repository = _unitOfWork.GetRepository<Order>();
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null || order.Status == "Completed")
+                return false;
+
+            // Hủy đơn hàng
+            order.Status = "Cancelled";
+
+            repository.Update(order);
+            //await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        public async Task UpdateOrderAsync(Order order)
+        {
+            var repository = _unitOfWork.GetRepository<Order>();
+            repository.Update(order);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task UpdateOrderDetailAsync(OrderDetail detail)
+        {
+            var repository = _unitOfWork.GetRepository<OrderDetail>();
+            repository.Update(detail);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }

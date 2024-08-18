@@ -86,5 +86,21 @@ namespace XuongMay.Services.Service
 
             return true;
         }
+
+        public async Task<OrderDetail> CancelOrderDetailAsync(string id)
+        {
+            OrderDetail orderDetail = new();
+            orderDetail.Id = ObjectId.Parse(id);
+            var repository = _unitOfWork.GetRepository<OrderDetail>();
+            var existingOrderDetail = await repository.GetByIdAsync(orderDetail.Id);
+            if (existingOrderDetail == null)
+                return null;
+            existingOrderDetail.Status = "Canceled";
+
+            repository.Update(existingOrderDetail);
+            //await _unitOfWork.SaveAsync();
+
+            return existingOrderDetail;
+        }
     }
 }

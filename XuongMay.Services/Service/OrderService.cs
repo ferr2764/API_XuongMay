@@ -109,5 +109,23 @@ namespace XuongMay.Services.Service
 
             return existingOrder;
         }
+
+        public async Task<Order> CancelOrderAsync(string id)
+        {
+            Order order = new();
+            order.Id = ObjectId.Parse(id);
+            var repository = _unitOfWork.GetRepository<Order>();
+            var existingOrder = await repository.GetByIdAsync(order.Id);
+            if (existingOrder == null)
+                return null;
+            existingOrder.Status = "Canceled";
+
+            repository.Update(existingOrder);
+            //await _unitOfWork.SaveAsync();
+
+            return existingOrder;
+        }
+
+
     }
 }

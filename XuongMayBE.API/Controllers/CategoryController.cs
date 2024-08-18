@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.CategoryModelViews;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -56,7 +57,7 @@ namespace XuongMayBE.API.Controllers
         /// <returns>The created category details.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] Category category)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryModelView category)
         {
             if (category == null)
             {

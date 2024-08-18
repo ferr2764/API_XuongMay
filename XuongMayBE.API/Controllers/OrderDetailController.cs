@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderDetailModelView;
@@ -37,6 +38,7 @@ namespace XuongMayBE.API.Controllers
         /// Get all order details.
         /// </summary>
         /// <returns>A list of all order details.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllOrderDetails()
         {
@@ -55,6 +57,7 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <param name="orderDetail">The order detail data to create.</param>
         /// <returns>The created order detail.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView orderDetail)
         {
@@ -67,6 +70,7 @@ namespace XuongMayBE.API.Controllers
             return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public IActionResult UpdateOrderDetail()
         {

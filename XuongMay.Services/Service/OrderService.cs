@@ -76,11 +76,15 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Order>();
-            var order = await repository.GetByIdAsync(objectId);
-            if (order == null)
+            var existingOrder = await repository.GetByIdAsync(objectId);
+            if (existingOrder == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
+            // Update trạng thái thành Unavailable
+            existingOrder.Status = "Unavailable";
+            
+
+            repository.Update(existingOrder);
             await _unitOfWork.SaveAsync();
 
             return true;

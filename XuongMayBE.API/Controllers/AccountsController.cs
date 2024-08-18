@@ -57,7 +57,7 @@ namespace XuongMayBE.API.Controllers
 
             try
             {
-                await _accountService.UpdateAccountByIdAsync(id, updatedAccount);
+                await _accountService.UpdateAccountAsync(id, updatedAccount);
                 return NoContent();
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace XuongMayBE.API.Controllers
         {
             try
             {
-                await _accountService.DeleteProductByIdAsync(id);
+                await _accountService.DeleteAccountAsync(id);
                 return NoContent();
             }
             catch (Exception ex)

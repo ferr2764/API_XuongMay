@@ -20,8 +20,11 @@ namespace XuongMay.Services.Service
         //Get account By Id
         public async Task<Account> GetAccountByIdAsync(string id)
         {
-            ObjectId objectId = ObjectId.Parse(id);
-            return await _accounts.Find(a => a.Id == objectId).FirstOrDefaultAsync();
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
+
+            var repository = _unitOfWork.GetRepository<Account>();
+            return await repository.GetByIdAsync(objectId);
         }
 
         //Get account By Role
@@ -33,7 +36,8 @@ namespace XuongMay.Services.Service
         //Get all accounts
         public async Task<IEnumerable<Account>> GetAllAccountsAsync()
         {
-            return await _accounts.Find(a => true).ToListAsync();
+            var repository = _unitOfWork.GetRepository<Account>();
+            return await repository.GetAllAsync();
         }
 
         //Update account

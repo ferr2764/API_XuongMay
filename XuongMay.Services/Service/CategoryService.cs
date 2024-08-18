@@ -64,12 +64,15 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Category>();
-            var category = await repository.GetByIdAsync(objectId);
-            if (category == null)
+            var existingCategory = await repository.GetByIdAsync(objectId);
+            if (existingCategory == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
-            //await _unitOfWork.SaveAsync();
+            // Update trạng thái thành Unavailable
+            existingCategory.CategoryStatus = "Unavailable";
+
+            repository.Update(existingCategory);
+            // await _unitOfWork.SaveAsync();
 
             return true;
         }

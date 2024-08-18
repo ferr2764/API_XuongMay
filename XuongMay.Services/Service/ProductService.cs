@@ -36,6 +36,27 @@ namespace XuongMay.Services.Service
 
         public async Task<Product> CreateProductAsync(Product product)
         {
+            // Fetch the category from the repository
+            var categoryRepository = _unitOfWork.GetRepository<Category>();
+            var category = await categoryRepository.GetByIdAsync(ObjectId.Parse(createProduct.CategoryId));
+
+            if (category == null)
+            {
+                throw new Exception("Category not found.");
+            }
+
+            if (category.CategoryStatus == "Unavailable")
+            {
+                throw new Exception("Cannot create a product in an unavailable category.");
+            }
+
+            Product product = new Product
+            {
+                ProductName = createProduct.ProductName,
+                ProductSize = createProduct.ProductSize,
+                Status = "Available",
+                CategoryId = ObjectId.Parse(createProduct.CategoryId)
+            };
             var repository = _unitOfWork.GetRepository<Product>();
             await repository.InsertAsync(product);
             //await _unitOfWork.SaveAsync();

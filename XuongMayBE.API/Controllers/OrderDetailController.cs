@@ -17,16 +17,31 @@ namespace XuongMayBE.API.Controllers
             _orderDetailService = orderDetailService;
         }
 
+        /// <summary>
+        /// Get an order detail by ID.
+        /// </summary>
+        /// <param name="id">The ID of the order detail.</param>
+        /// <returns>The order detail.</returns>
         [HttpGet("{id}")]
-        public IActionResult GetOrderDetailById()
+        public async Task<IActionResult> GetOrderDetailById(string id)
         {
-            return Ok();
+            var orderDetail = await _orderDetailService.GetOrderDetailByIdAsync(id);
+            if (orderDetail == null)
+            {
+                return NotFound();
+            }
+            return Ok(orderDetail);
         }
 
+        /// <summary>
+        /// Get all order details.
+        /// </summary>
+        /// <returns>A list of all order details.</returns>
         [HttpGet]
-        public IActionResult GetAllOrderDetail()
+        public async Task<IActionResult> GetAllOrderDetails()
         {
-            return Ok();
+            var orderDetails = await _orderDetailService.GetAllOrderDetailsAsync();
+            return Ok(orderDetails);
         }
 
         [HttpGet("order/{orderId}")]
@@ -35,6 +50,11 @@ namespace XuongMayBE.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Create a new order detail.
+        /// </summary>
+        /// <param name="orderDetail">The order detail data to create.</param>
+        /// <returns>The created order detail.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView orderDetail)
         {

@@ -8,5 +8,6 @@ namespace XuongMay.Contract.Services.Interface
         Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role);
         Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task UpdateAccountByIdAsync(string id, Account updatedAccount);
+        Task UpdateAccountRoleAsync(string accountId, string newRole);
     }
 }

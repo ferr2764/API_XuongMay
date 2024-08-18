@@ -18,6 +18,12 @@ namespace XuongMayBE.API.Controllers
             _authService = authService;
         }
 
+        // POST api/auth/register
+        /// <summary>
+        /// Register a new user account.
+        /// </summary>
+        /// <param name="account">The account details for registration.</param>
+        /// <returns>A success message if the registration is successful.</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Account account)
         {
@@ -37,6 +43,12 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
+        // POST api/auth/login
+        /// <summary>
+        /// Log in a user with username and password.
+        /// </summary>
+        /// <param name="loginRequest">The login details (username and password).</param>
+        /// <returns>A token and user details if login is successful.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelView loginRequest)
         {

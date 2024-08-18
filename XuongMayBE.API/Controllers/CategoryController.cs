@@ -94,18 +94,18 @@ namespace XuongMayBE.API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/category/{id}
+        // PATCH: api/category/{id}
         /// <summary>
-        /// Delete a category.
+        /// Mark a category as deleted (e.g., by setting its status to "Unavailable").
         /// </summary>
-        /// <param name="id">The ID of the category to delete.</param>
-        /// <returns>No content if the deletion is successful.</returns>
+        /// <param name="id">The ID of the category to "delete".</param>
+        /// <returns>No content if the operation is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpDelete("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
-            var isDeleted = await _categoryService.DeleteCategoryAsync(id);
-            if (!isDeleted)
+            var isUnavailable = await _categoryService.DeleteCategoryAsync(id);
+            if (!isUnavailable)
             {
                 return NotFound();
             }

@@ -15,7 +15,7 @@ namespace XuongMayBE.API.Controllers
 
         public ProductController(IProductService productService)
         {
-            _productService = productService;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
 
@@ -42,11 +42,7 @@ namespace XuongMayBE.API.Controllers
         public async Task<IActionResult> GetProduct(string id)
         {
             var product = await _productService.GetProductByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
+            return product != null ? Ok(product) : NotFound();
         }
 
 
@@ -90,13 +86,7 @@ namespace XuongMayBE.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
         {
-            if (product == null)
-            {
-                return BadRequest("Product data is null.");
-            }
-
-            // Check if the provided id and the product.Id match and are valid ObjectIds
-            if (!ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
+            if (product == null || !ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
             {
                 return BadRequest("Invalid ID format or ID mismatch.");
             }
@@ -104,12 +94,7 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var updatedProduct = await _productService.UpdateProductAsync(id, product);
-                if (updatedProduct == null)
-                {
-                    return NotFound();
-                }
-
-                return NoContent();
+                return updatedProduct != null ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {
@@ -136,12 +121,7 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var isUnavailable = await _productService.DeleteProductAsync(id);
-                if (!isUnavailable)
-                {
-                    return NotFound();
-                }
-
-                return NoContent();
+                return isUnavailable ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {

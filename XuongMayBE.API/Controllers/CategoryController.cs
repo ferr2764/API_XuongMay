@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +20,10 @@ namespace XuongMayBE.API.Controllers
         }
 
         // GET: api/category
+        /// <summary>
+        /// Get all categories.
+        /// </summary>
+        /// <returns>A list of all categories.</returns>
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -27,6 +32,11 @@ namespace XuongMayBE.API.Controllers
         }
 
         // GET: api/category/{id}
+        /// <summary>
+        /// Get a category by ID.
+        /// </summary>
+        /// <param name="id">The ID of the category.</param>
+        /// <returns>The category details.</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategory(string id)
         {
@@ -39,6 +49,12 @@ namespace XuongMayBE.API.Controllers
         }
 
         // POST: api/category
+        /// <summary>
+        /// Create a new category.
+        /// </summary>
+        /// <param name="category">The category details to create.</param>
+        /// <returns>The created category details.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] Category category)
         {
@@ -52,6 +68,13 @@ namespace XuongMayBE.API.Controllers
         }
 
         // PUT: api/category/{id}
+        /// <summary>
+        /// Update an existing category.
+        /// </summary>
+        /// <param name="id">The ID of the category to update.</param>
+        /// <param name="category">The updated category details.</param>
+        /// <returns>No content if the update is successful.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(string id, [FromBody] Category category)
         {
@@ -72,6 +95,12 @@ namespace XuongMayBE.API.Controllers
         }
 
         // DELETE: api/category/{id}
+        /// <summary>
+        /// Delete a category.
+        /// </summary>
+        /// <param name="id">The ID of the category to delete.</param>
+        /// <returns>No content if the deletion is successful.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {

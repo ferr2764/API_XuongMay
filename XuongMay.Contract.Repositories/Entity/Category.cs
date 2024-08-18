@@ -13,5 +13,8 @@ namespace XuongMay.Contract.Repositories.Entity
 
         [BsonElement("categoryDescription")]
         public string CategoryDescription { get; set; }
+
+        [BsonElement("categoryStatus")]
+        public string CategoryStatus { get; set; }
     }
 }

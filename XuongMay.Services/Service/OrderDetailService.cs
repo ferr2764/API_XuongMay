@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.OrderDetailModelView;
 
 namespace XuongMay.Services.Service
 {
@@ -34,11 +35,17 @@ namespace XuongMay.Services.Service
             return await repository.GetByIdAsync(objectId);
         }
 
-        public async Task<OrderDetail> CreateOrderDetailAsync(OrderDetail orderDetail)
+        public async Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetailModel)
         {
+            OrderDetail orderDetail = new();
+            orderDetail.OrderId = ObjectId.Parse(orderDetailModel.OrderId);
+            orderDetail.ProductId = ObjectId.Parse(orderDetailModel.ProductId);
+            orderDetail.Status = "Created";
+            orderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
+
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             await repository.InsertAsync(orderDetail);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
             return orderDetail;
         }
 
@@ -52,7 +59,6 @@ namespace XuongMay.Services.Service
             if (existingOrderDetail == null)
                 return null;
 
-            // Update các thuộc tính cần thiết
             existingOrderDetail.Status = orderDetail.Status;
             existingOrderDetail.NumberOfProds = orderDetail.NumberOfProds;
 
@@ -68,11 +74,14 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var orderDetail = await repository.GetByIdAsync(objectId);
-            if (orderDetail == null)
+            var existingOrderDetail = await repository.GetByIdAsync(objectId);
+            if (existingOrderDetail == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
+            // Update trạng thái thành Unavailable
+            existingOrderDetail.Status = "Unavailable";
+
+            repository.Update(existingOrderDetail);
             await _unitOfWork.SaveAsync();
 
             return true;

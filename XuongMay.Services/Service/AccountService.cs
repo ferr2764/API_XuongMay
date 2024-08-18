@@ -1,9 +1,5 @@
 ﻿using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -12,19 +8,16 @@ namespace XuongMay.Services.Service
 {
     public class AccountService : IAccountService
     {
+        private readonly IMongoCollection<Account> _accounts;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(IUnitOfWork unitOfWork)
+        public AccountService(IMongoDatabase database, IUnitOfWork unitOfWork)
         {
+            _accounts = database.GetCollection<Account>("Accounts");
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Account>> GetAllAccountsAsync()
-        {
-            var repository = _unitOfWork.GetRepository<Account>();
-            return await repository.GetAllAsync();
-        }
-
+        //Get account By Id
         public async Task<Account> GetAccountByIdAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
@@ -34,14 +27,20 @@ namespace XuongMay.Services.Service
             return await repository.GetByIdAsync(objectId);
         }
 
-        public async Task<Account> CreateAccountAsync(Account account)
+        //Get account By Role
+        public async Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role)
         {
-            var repository = _unitOfWork.GetRepository<Account>();
-            await repository.InsertAsync(account);
-            await _unitOfWork.SaveAsync();
-            return account;
+            return await _accounts.Find(a => a.Role == role).ToListAsync();
         }
 
+        //Get all accounts
+        public async Task<IEnumerable<Account>> GetAllAccountsAsync()
+        {
+            var repository = _unitOfWork.GetRepository<Account>();
+            return await repository.GetAllAsync();
+        }
+
+        //Update account
         public async Task<Account> UpdateAccountAsync(string id, Account account)
         {
             if (!ObjectId.TryParse(id, out var objectId))
@@ -52,15 +51,13 @@ namespace XuongMay.Services.Service
             if (existingAccount == null)
                 return null;
 
-            // Update các thuộc tính cần thiết
+            // Update thuộc tính
             existingAccount.Name = account.Name;
-            existingAccount.Username = account.Username;
             existingAccount.Password = account.Password;
-            existingAccount.Role = account.Role;
+            existingAccount.Status = account.Status;
             existingAccount.Salary = account.Salary;
 
             repository.Update(existingAccount);
-            await _unitOfWork.SaveAsync();
 
             return existingAccount;
         }
@@ -76,9 +73,28 @@ namespace XuongMay.Services.Service
                 return false;
 
             await repository.DeleteAsync(objectId);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
             return true;
         }
+
+        // Update account role
+        public async Task UpdateAccountRoleAsync(string accountId, string newRole)
+        {
+            ObjectId objectId = ObjectId.Parse(accountId);
+
+            // Update the role field of the account
+            var updateDefinition = Builders<Account>.Update
+                .Set(a => a.Role, newRole);
+
+            // Execute the update
+            var result = await _accounts.UpdateOneAsync(a => a.Id == objectId, updateDefinition);
+
+            if (result.MatchedCount == 0)
+            {
+                throw new Exception("Account not found.");
+            }
+        }
+
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using MongoDB.Bson;
+using XuongMay.ModelViews.ProductModelViews;
+using Microsoft.AspNetCore.Authorization;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -18,7 +18,12 @@ namespace XuongMayBE.API.Controllers
             _productService = productService;
         }
 
-        // GET: api/product
+
+        // GET api/product
+        /// <summary>
+        /// Get all products.
+        /// </summary>
+        /// <returns>A list of all products.</returns>
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
@@ -26,7 +31,13 @@ namespace XuongMayBE.API.Controllers
             return Ok(products);
         }
 
-        // GET: api/product/{id}
+
+        // GET api/product/{id}
+        /// <summary>
+        /// Get a product by ID.
+        /// </summary>
+        /// <param name="id">The ID of the product.</param>
+        /// <returns>The product details.</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(string id)
         {
@@ -38,49 +49,104 @@ namespace XuongMayBE.API.Controllers
             return Ok(product);
         }
 
-        // POST: api/product
+
+        // CREATE api/product
+        /// <summary>
+        /// Create a new product.
+        /// Only accessible by users with the Manager role.
+        /// </summary>
+        /// <param name="product">The product details to create.</param>
+        /// <returns>The created product details.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductModelView product)
         {
             if (product == null)
             {
                 return BadRequest("Product data is null.");
             }
 
-            var createdProduct = await _productService.CreateProductAsync(product);
-            return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id.ToString() }, createdProduct);
+            try
+            {
+                var createdProduct = await _productService.CreateProductAsync(product);
+                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id.ToString() }, createdProduct);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        // PUT: api/product/{id}
+
+        // UPDATE api/product/{id}
+        /// <summary>
+        /// Update an existing product.
+        /// Only accessible by users with the Manager role.
+        /// </summary>
+        /// <param name="id">The ID of the product to update.</param>
+        /// <param name="product">The updated product details.</param>
+        /// <returns>No content if the update is successful.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
         {
+            if (product == null)
+            {
+                return BadRequest("Product data is null.");
+            }
+
             // Check if the provided id and the product.Id match and are valid ObjectIds
             if (!ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
             {
                 return BadRequest("Invalid ID format or ID mismatch.");
             }
 
-            var updatedProduct = await _productService.UpdateProductAsync(id, product);
-            if (updatedProduct == null)
+            try
             {
-                return NotFound();
-            }
+                var updatedProduct = await _productService.UpdateProductAsync(id, product);
+                if (updatedProduct == null)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        // DELETE: api/product/{id}
+        // DELETE api/product/{id}
+        /// <summary>
+        /// Delete a product by ID.
+        /// Only accessible by users with the Manager role.
+        /// </summary>
+        /// <param name="id">The ID of the product to delete.</param>
+        /// <returns>No content if the deletion is successful.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
-            var isDeleted = await _productService.DeleteProductAsync(id);
-            if (!isDeleted)
+            if (!ObjectId.TryParse(id, out _))
             {
-                return NotFound();
+                return BadRequest("Invalid ID format.");
             }
 
-            return NoContent();
+            try
+            {
+                var isDeleted = await _productService.DeleteProductAsync(id);
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

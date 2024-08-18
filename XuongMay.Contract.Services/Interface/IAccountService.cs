@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 
 namespace XuongMay.Contract.Services.Interface
 {
     public interface IAccountService
     {
-        Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task<Account> GetAccountByIdAsync(string id);
-        Task<Account> CreateAccountAsync(Account account);
+        Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role);
+        Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task<Account> UpdateAccountAsync(string id, Account account);
         Task<bool> DeleteAccountAsync(string id);
+        Task UpdateAccountRoleAsync(string accountId, string newRole);
     }
 }

@@ -1,9 +1,4 @@
 ﻿using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -55,6 +50,7 @@ namespace XuongMay.Services.Service
             // Update các thuộc tính cần thiết
             existingCategory.CategoryName = category.CategoryName;
             existingCategory.CategoryDescription = category.CategoryDescription;
+            existingCategory.CategoryStatus = category.CategoryStatus;
 
             repository.Update(existingCategory);
            // await _unitOfWork.SaveAsync();
@@ -68,12 +64,15 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Category>();
-            var category = await repository.GetByIdAsync(objectId);
-            if (category == null)
+            var existingCategory = await repository.GetByIdAsync(objectId);
+            if (existingCategory == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
-            //await _unitOfWork.SaveAsync();
+            // Update trạng thái thành Unavailable
+            existingCategory.CategoryStatus = "Unavailable";
+
+            repository.Update(existingCategory);
+            // await _unitOfWork.SaveAsync();
 
             return true;
         }

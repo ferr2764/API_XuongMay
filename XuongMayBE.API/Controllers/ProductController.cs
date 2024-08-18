@@ -2,6 +2,7 @@
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using MongoDB.Bson;
+using XuongMay.ModelViews.ProductModelViews;
 using Microsoft.AspNetCore.Authorization;
 
 namespace XuongMayBE.API.Controllers
@@ -40,7 +41,7 @@ namespace XuongMayBE.API.Controllers
         // POST: api/product
         [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductModelView product)
         {
             if (product == null)
             {

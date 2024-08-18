@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.OrderDetailModelView;
+using XuongMay.Services.Service;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -26,16 +29,22 @@ namespace XuongMayBE.API.Controllers
             return Ok();
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("order/{orderId}")]
         public IActionResult GetOrderDetailByOrderId()
         {
             return Ok();
         }
 
         [HttpPost]
-        public IActionResult CreateOrderDetail()
+        public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView orderDetail)
         {
-            return Ok();
+            if (orderDetail == null)
+            {
+                return BadRequest("Order Detail data is null.");
+            }
+
+            var createdOrderDetail = await _orderDetailService.CreateOrderDetailAsync(orderDetail);
+            return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
         }
 
         [HttpPut("{id}")]

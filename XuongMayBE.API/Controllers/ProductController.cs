@@ -117,16 +117,16 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-        // DELETE api/product/{id}
+        // PATCH api/product/{id} to update status to "Unavailable"
         /// <summary>
-        /// Delete a product by ID.
+        /// Update product status to Unavailable by ID.
         /// Only accessible by users with the Manager role.
         /// </summary>
-        /// <param name="id">The ID of the product to delete.</param>
-        /// <returns>No content if the deletion is successful.</returns>
+        /// <param name="id">The ID of the product to update status.</param>
+        /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(string id)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateProductStatus(string id)
         {
             if (!ObjectId.TryParse(id, out _))
             {
@@ -135,8 +135,8 @@ namespace XuongMayBE.API.Controllers
 
             try
             {
-                var isDeleted = await _productService.DeleteProductAsync(id);
-                if (!isDeleted)
+                var isUnavailable = await _productService.DeleteProductAsync(id);
+                if (!isUnavailable)
                 {
                     return NotFound();
                 }

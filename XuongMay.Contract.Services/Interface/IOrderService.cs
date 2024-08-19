@@ -10,7 +10,7 @@ namespace XuongMay.Contract.Services.Interface
 {
     public interface IOrderService
     {
-        Task<IEnumerable<Order>> GetAllOrdersAsync();
+        Task<IEnumerable<Order>> GetPaginatedOrdersAsync(int pageNumber, int pageSize);
         Task<Order> GetOrderByIdAsync(string id);
         Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel);
         Task<Order> UpdateOrderAsync(string id, Order order);
@@ -18,6 +18,5 @@ namespace XuongMay.Contract.Services.Interface
         Task<Order> MoveToNextStatusAsync(string id);
         Task<bool> CancelOrderAsync(string id);
         Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id);
- 
     }
 }

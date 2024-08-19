@@ -15,7 +15,7 @@ namespace XuongMayBE.API.Controllers
 
         public ProductController(IProductService productService)
         {
-            _productService = productService;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
 
@@ -25,10 +25,10 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <returns>A list of all products.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 5)
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
+            var pagedProducts = await _productService.GetPaginatedProductsAsync(pageNumber, pageSize);
+            return Ok(pagedProducts);
         }
 
 
@@ -42,11 +42,7 @@ namespace XuongMayBE.API.Controllers
         public async Task<IActionResult> GetProduct(string id)
         {
             var product = await _productService.GetProductByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
+            return product != null ? Ok(product) : NotFound();
         }
 
 
@@ -90,13 +86,7 @@ namespace XuongMayBE.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
         {
-            if (product == null)
-            {
-                return BadRequest("Product data is null.");
-            }
-
-            // Check if the provided id and the product.Id match and are valid ObjectIds
-            if (!ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
+            if (product == null || !ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
             {
                 return BadRequest("Invalid ID format or ID mismatch.");
             }
@@ -104,12 +94,7 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var updatedProduct = await _productService.UpdateProductAsync(id, product);
-                if (updatedProduct == null)
-                {
-                    return NotFound();
-                }
-
-                return NoContent();
+                return updatedProduct != null ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {
@@ -117,15 +102,15 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-        // DELETE api/product/{id}
+        // PATCH api/product/{id} to update status to "Unavailable"
         /// <summary>
-        /// Delete a product by ID.
+        /// Update product status to Unavailable by ID.
         /// Only accessible by users with the Manager role.
         /// </summary>
-        /// <param name="id">The ID of the product to delete.</param>
-        /// <returns>No content if the deletion is successful.</returns>
+        /// <param name="id">The ID of the product to update status.</param>
+        /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpDelete("{id}")]
+        [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             if (!ObjectId.TryParse(id, out _))
@@ -135,13 +120,8 @@ namespace XuongMayBE.API.Controllers
 
             try
             {
-                var isDeleted = await _productService.DeleteProductAsync(id);
-                if (!isDeleted)
-                {
-                    return NotFound();
-                }
-
-                return NoContent();
+                var isUnavailable = await _productService.DeleteProductAsync(id);
+                return isUnavailable ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {

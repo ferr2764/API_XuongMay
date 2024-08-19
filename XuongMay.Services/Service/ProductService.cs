@@ -15,11 +15,19 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+        public async Task<IEnumerable<Product>> GetPaginatedProductsAsync(int pageNumber, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<Product>();
-            return await repository.GetAllAsync();
+            var products = await repository.GetAllAsync();
+
+            var pagedProducts = products
+                                .Skip((pageNumber - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
+
+            return pagedProducts;
         }
+
 
         public async Task<Product> GetProductByIdAsync(string id)
         {
@@ -32,11 +40,27 @@ namespace XuongMay.Services.Service
 
         public async Task<Product> CreateProductAsync(CreateProductModelView createProduct)
         {
-            Product product = new Product();
-            product.ProductName = createProduct.ProductName;
-            product.ProductSize = createProduct.ProductSize;
-            product.Status = "Available";
-            product.CategoryId = ObjectId.Parse(createProduct.CategoryId);
+            // Fetch the category from the repository
+            var categoryRepository = _unitOfWork.GetRepository<Category>();
+            var category = await categoryRepository.GetByIdAsync(ObjectId.Parse(createProduct.CategoryId));
+
+            if (category == null)
+            {
+                throw new Exception("Category not found.");
+            }
+
+            if (category.CategoryStatus == "Unavailable")
+            {
+                throw new Exception("Cannot create a product in an unavailable category.");
+            }
+
+            Product product = new Product
+            {
+                ProductName = createProduct.ProductName,
+                ProductSize = createProduct.ProductSize,
+                Status = "Available",
+                CategoryId = ObjectId.Parse(createProduct.CategoryId)
+            };
             var repository = _unitOfWork.GetRepository<Product>();
             await repository.InsertAsync(product);
             //await _unitOfWork.SaveAsync();

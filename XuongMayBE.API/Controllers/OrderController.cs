@@ -41,18 +41,19 @@ namespace XuongMayBE.API.Controllers
         /// <returns>A list of all orders.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders(int pageNumber = 1, int pageSize = 5)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return Ok(orders);
+            var pagedOrders = await _orderService.GetPaginatedOrdersAsync(pageNumber, pageSize);
+            return Ok(pagedOrders);
         }
+
 
         /// <summary>
         /// Create a new order.
         /// </summary>
         /// <param name="model">The order details for creation.</param>
         /// <returns>The created order details.</returns>
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderModelView model)
         {
@@ -81,9 +82,59 @@ namespace XuongMayBE.API.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpPut("assign/{id}")]
-        public IActionResult AssignOrder()
+        public async Task<IActionResult> AssignOrder([FromBody] AssignOrderModelView assignOrderModelView, string id)
         {
-            return Ok();
+            if (assignOrderModelView == null)
+            {
+                return BadRequest("Invalid Account data.");
+            }
+
+            try
+            {
+                var response = await _orderService.AssignOrderAsync(assignOrderModelView, id);
+                return CreatedAtAction(nameof(GetOrderById), new { id = response.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("cancel/{id}")]
+        public async Task<IActionResult> CancelOrder(string id)
+        {
+            try
+            {
+                var response = await _orderService.CancelOrderAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Move an order to the next status in the workflow.
+        /// </summary>
+        /// <param name="id">The ID of the order to update.</param>
+        /// <returns>The updated order with the new status.</returns>
+        [HttpPut("{id}/status/next")]
+        public async Task<IActionResult> MoveToNextStatus(string id)
+        {
+            try
+            {
+                var order = await _orderService.MoveToNextStatusAsync(id);
+                if (order == null)
+                {
+                    return BadRequest("Unable to move to the next status. Order may be completed or invalid.");
+                }
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

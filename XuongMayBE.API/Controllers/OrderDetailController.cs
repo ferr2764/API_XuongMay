@@ -40,11 +40,12 @@ namespace XuongMayBE.API.Controllers
         /// <returns>A list of all order details.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetAllOrderDetails()
+        public async Task<IActionResult> GetAllOrderDetails(int pageNumber = 1, int pageSize = 5)
         {
-            var orderDetails = await _orderDetailService.GetAllOrderDetailsAsync();
-            return Ok(orderDetails);
+            var pagedOrderDetails = await _orderDetailService.GetPaginatedOrderDetailsAsync(pageNumber, pageSize);
+            return Ok(pagedOrderDetails);
         }
+
 
         [HttpGet("order/{orderId}")]
         public IActionResult GetOrderDetailByOrderId()
@@ -77,5 +78,18 @@ namespace XuongMayBE.API.Controllers
             return Ok();
         }
 
+        [HttpPut("cancel/{id}")]
+        public async Task<IActionResult> CancelOrder(string id)
+        {
+            try
+            {
+                var response = await _orderDetailService.CancelOrderDetailAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

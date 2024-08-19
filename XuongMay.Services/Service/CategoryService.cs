@@ -2,6 +2,8 @@
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.Core.Utils;
+using XuongMay.ModelViews.CategoryModelViews;
 
 namespace XuongMay.Services.Service
 {
@@ -14,11 +16,25 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        //public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        //{
+        //    var repository = _unitOfWork.GetRepository<Category>();
+        //    return await repository.GetAllAsync();
+        //}
+
+        public async Task<IEnumerable<Category>> GetCategoriesByPageAsync(int page, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<Category>();
-            return await repository.GetAllAsync();
+            var categories = await repository.GetAllAsync();
+
+            var pagedCategories = categories
+                                  .Skip((page - 1) * pageSize)
+                                  .Take(pageSize)
+                                  .ToList();
+
+            return pagedCategories;
         }
+
 
         public async Task<Category> GetCategoryByIdAsync(string id)
         {
@@ -29,11 +45,19 @@ namespace XuongMay.Services.Service
             return await repository.GetByIdAsync(objectId);
         }
 
-        public async Task<Category> CreateCategoryAsync(Category category)
+        public async Task<Category> CreateCategoryAsync(CreateCategoryModelView categoryModelView)
         {
+            var category = new Category
+            {
+                CategoryName = categoryModelView.CategoryName,
+                CategoryDescription = categoryModelView.CategoryDescription,
+                CategoryStatus = "Available"
+            };
+
             var repository = _unitOfWork.GetRepository<Category>();
             await repository.InsertAsync(category);
-            //await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
+
             return category;
         }
 

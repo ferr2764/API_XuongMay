@@ -1,8 +1,5 @@
 ﻿using MongoDB.Bson;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
@@ -20,11 +17,19 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        public async Task<IEnumerable<Order>> GetPaginatedOrdersAsync(int pageNumber, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<Order>();
-            return await repository.GetAllAsync();
+            var orders = await repository.GetAllAsync();
+
+            var pagedOrders = orders
+                              .Skip((pageNumber - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToList();
+
+            return pagedOrders;
         }
+
 
         public async Task<Order> GetOrderByIdAsync(string id)
         {
@@ -37,14 +42,16 @@ namespace XuongMay.Services.Service
 
         public async Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel)
         {
-            Order order = new Order();
-            order.AccountId = ObjectId.Parse(orderViewModel.AccountId);
-            order.Deadline = orderViewModel.Deadline;
-            order.Status = "Created";
-            order.CreatedDate = DateTime.Now;
+            Order order = new Order
+            {
+                AccountId = ObjectId.Parse(orderViewModel.AccountId),
+                Deadline = orderViewModel.Deadline,
+                Status = "Created",
+                CreatedDate = DateTime.Now
+            };
+
             var repository = _unitOfWork.GetRepository<Order>();
             await repository.InsertAsync(order);
-            //await _unitOfWork.SaveAsync();
             return order;
         }
 
@@ -82,7 +89,6 @@ namespace XuongMay.Services.Service
 
             // Update trạng thái thành Unavailable
             existingOrder.Status = "Unavailable";
-            
 
             repository.Update(existingOrder);
             await _unitOfWork.SaveAsync();

@@ -110,7 +110,7 @@ namespace XuongMayBE.API.Controllers
         /// <param name="id">The ID of the product to update status.</param>
         /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpPut("delete/{id}")]
+        [HttpPatch("delete/{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             if (!ObjectId.TryParse(id, out _))

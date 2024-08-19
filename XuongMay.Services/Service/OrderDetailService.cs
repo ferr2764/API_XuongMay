@@ -46,11 +46,23 @@ namespace XuongMay.Services.Service
 
         public async Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetailModel)
         {
-            OrderDetail orderDetail = new();
-            orderDetail.OrderId = ObjectId.Parse(orderDetailModel.OrderId);
-            orderDetail.ProductId = ObjectId.Parse(orderDetailModel.ProductId);
-            orderDetail.Status = "Created";
-            orderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
+
+            // Fetch the product from the repository
+            var productRepository = _unitOfWork.GetRepository<Product>();
+            var product = await productRepository.GetByIdAsync(ObjectId.Parse(orderDetailModel.ProductId));
+
+            // Validate the product status
+            if (product == null || product.Status != "Available")
+            {
+                throw new Exception("Cannot create an order detail for a product that is unavailable.");
+            }
+            OrderDetail orderDetail = new OrderDetail
+            {
+                OrderId = ObjectId.Parse(orderDetailModel.OrderId),
+                ProductId = ObjectId.Parse(orderDetailModel.ProductId),
+                Status = "Created",
+                NumberOfProds = orderDetailModel.NumberOfProds
+            };
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             await repository.InsertAsync(orderDetail);

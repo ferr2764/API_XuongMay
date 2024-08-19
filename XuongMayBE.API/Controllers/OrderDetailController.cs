@@ -11,7 +11,7 @@ namespace XuongMayBE.API.Controllers
     [ApiController]
     public class OrderDetailController : Controller
     {
-        public readonly IOrderDetailService _orderDetailService;
+        private readonly IOrderDetailService _orderDetailService;
 
         public OrderDetailController(IOrderDetailService orderDetailService)
         {
@@ -46,7 +46,10 @@ namespace XuongMayBE.API.Controllers
             return Ok(pagedOrderDetails);
         }
 
-
+        /// <summary>
+        /// Get order details by order ID.
+        /// </summary>
+        /// <returns>A list of order details for a specific order.</returns>
         [HttpGet("order/{orderId}")]
         public IActionResult GetOrderDetailByOrderId()
         {
@@ -67,15 +70,46 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest("Order Detail data is null.");
             }
 
-            var createdOrderDetail = await _orderDetailService.CreateOrderDetailAsync(orderDetail);
-            return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
+            try
+            {
+                var createdOrderDetail = await _orderDetailService.CreateOrderDetailAsync(orderDetail);
+                return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Update an existing order detail.
+        /// </summary>
+        /// <param name="id">The ID of the order detail to update.</param>
+        /// <param name="orderDetail">The updated order detail data.</param>
+        /// <returns>The updated order detail.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public IActionResult UpdateOrderDetail()
+        public async Task<IActionResult> UpdateOrderDetail(string id, [FromBody] OrderDetail orderDetail)
         {
-            return Ok();
+            if (orderDetail == null || id != orderDetail.Id.ToString())
+            {
+                return BadRequest("Invalid Order Detail data or ID mismatch.");
+            }
+
+            try
+            {
+                var updatedOrderDetail = await _orderDetailService.UpdateOrderDetailAsync(id, orderDetail);
+                if (updatedOrderDetail == null)
+                {
+                    return NotFound("Order detail not found.");
+                }
+
+                return Ok(updatedOrderDetail);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("cancel/{id}")]

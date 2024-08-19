@@ -89,5 +89,76 @@ namespace XuongMay.Services.Service
 
             return true;
         }
+
+        public async Task<Order> MoveToNextStatusAsync(string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
+
+            var repository = _unitOfWork.GetRepository<Order>();
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null)
+                return null;
+
+            // Chuyển trạng thái theo thứ tự
+            switch (order.Status)
+            {
+                case "Created":
+                    order.Status = "Assigned";
+                    break;
+                case "Assigned":
+                    order.Status = "Completed";
+                    order.FinishDate = DateTime.Now;
+                    break;
+                case "Completed":
+                    return null; // Không thể chuyển trạng thái từ Completed
+                default:
+                    return null;
+            }
+
+            repository.Update(order);
+            //await _unitOfWork.SaveAsync();
+
+            return order;
+        }
+
+        public async Task<bool> CancelOrderAsync(string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return false;
+
+            var repository = _unitOfWork.GetRepository<Order>();
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null || order.Status == "Completed")
+                return false;
+
+            // Hủy đơn hàng
+            order.Status = "Cancelled";
+
+            repository.Update(order);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
+
+            var repository = _unitOfWork.GetRepository<Order>();
+            var order = await repository.GetByIdAsync(objectId);
+            if (order == null)
+                return null;
+
+            // Gán đơn hàng cho nhân viên
+            order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
+            order.Status = "Assigned";
+
+            repository.Update(order);
+            //await _unitOfWork.SaveAsync();
+
+            return order;
+        }
     }
 }

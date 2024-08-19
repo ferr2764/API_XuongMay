@@ -157,6 +157,14 @@ namespace XuongMay.Services.Service
             if (order == null)
                 return null;
 
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.GetByIdAsync(ObjectId.Parse(assignOrderModelView.AccountId));
+
+            if (account == null || account.Status == "Unavailable")
+            {
+                throw new Exception("Cannot assign order to an unavailable account.");
+            }
+
             // Gán đơn hàng cho nhân viên
             order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
             order.Status = "Assigned";

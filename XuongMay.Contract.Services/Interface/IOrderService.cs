@@ -18,7 +18,5 @@ namespace XuongMay.Contract.Services.Interface
         Task<Order> MoveToNextStatusAsync(string id);
         Task<bool> CancelOrderAsync(string id);
         Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id);
-        Task UpdateOrderAsync(Order order);
-        Task UpdateOrderDetailAsync(OrderDetail detail);
     }
 }

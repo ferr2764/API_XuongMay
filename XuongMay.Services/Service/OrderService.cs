@@ -166,19 +166,5 @@ namespace XuongMay.Services.Service
 
             return order;
         }
-
-        public async Task UpdateOrderAsync(Order order)
-        {
-            var repository = _unitOfWork.GetRepository<Order>();
-            repository.Update(order);
-            await _unitOfWork.SaveAsync();
-        }
-
-        public async Task UpdateOrderDetailAsync(OrderDetail detail)
-        {
-            var repository = _unitOfWork.GetRepository<OrderDetail>();
-            repository.Update(detail);
-            await _unitOfWork.SaveAsync();
-        }
     }
 }

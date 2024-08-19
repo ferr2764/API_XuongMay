@@ -56,7 +56,6 @@ namespace XuongMayBE.API.Controllers
         /// Only accessible by Manager.
         /// </summary>
         /// <returns>A list of all accounts.</returns>
-        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllAccounts()
         {

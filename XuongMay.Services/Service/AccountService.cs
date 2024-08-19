@@ -68,13 +68,15 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Account>();
-            var account = await repository.GetByIdAsync(objectId);
-            if (account == null)
+            var existingAccount = await repository.GetByIdAsync(objectId);
+            if (existingAccount == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
-            //await _unitOfWork.SaveAsync();
+            // Update trạng thái thành Unavailable
+            existingAccount.Status = "Unavailable";
+         
 
+            repository.Update(existingAccount);
             return true;
         }
 

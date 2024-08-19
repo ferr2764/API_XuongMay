@@ -18,7 +18,7 @@ namespace XuongMay.Services.Service
 
         public AuthService(IMongoDatabase database, IConfiguration configuration)
         {
-            _accounts = database.GetCollection<Account>("Accounts");
+            _accounts = database.GetCollection<Account>("Account");
             _configuration = configuration;
         }
 

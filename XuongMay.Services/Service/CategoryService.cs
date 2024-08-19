@@ -16,11 +16,25 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        //public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        //{
+        //    var repository = _unitOfWork.GetRepository<Category>();
+        //    return await repository.GetAllAsync();
+        //}
+
+        public async Task<IEnumerable<Category>> GetCategoriesByPageAsync(int page, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<Category>();
-            return await repository.GetAllAsync();
+            var categories = await repository.GetAllAsync();
+
+            var pagedCategories = categories
+                                  .Skip((page - 1) * pageSize)
+                                  .Take(pageSize)
+                                  .ToList();
+
+            return pagedCategories;
         }
+
 
         public async Task<Category> GetCategoryByIdAsync(string id)
         {

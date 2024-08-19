@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.AccountModelView;
 
 namespace XuongMay.Services.Service
 {
@@ -17,31 +18,56 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
+        public ExposeAccountModelView AccountMapping(Account account)
+        {
+            ExposeAccountModelView model = new();
+            model.Id = account.Id.ToString();
+            model.Name = account.Name;
+            model.Role = account.Role;
+            model.Username = account.Username;
+            model.Salary = account.Salary;
+            model.Status = account.Status;
+            return model;
+        }
         //Get account By Id
-        public async Task<Account> GetAccountByIdAsync(string id)
+        public async Task<ExposeAccountModelView> GetAccountByIdAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
 
             var repository = _unitOfWork.GetRepository<Account>();
-            return await repository.GetByIdAsync(objectId);
+            var account = await repository.GetByIdAsync(objectId);
+            if (account == null)
+                return null;
+
+            return AccountMapping(account);
         }
 
         //Get account By Role
-        public async Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role)
+        public async Task<IEnumerable<ExposeAccountModelView>> GetAccountsByRoleAsync(string role)
         {
-            return await _accounts.Find(a => a.Role == role).ToListAsync();
+            var accounts = await _accounts.Find(a => a.Role == role).ToListAsync();
+            return accounts.Select(AccountMapping);
         }
+
 
         //Get all accounts
-        public async Task<IEnumerable<Account>> GetAllAccountsAsync()
+        public async Task<IEnumerable<ExposeAccountModelView>> GetAllAccountsAsync(int pageNumber = 1, int pageSize = 5)
         {
             var repository = _unitOfWork.GetRepository<Account>();
-            return await repository.GetAllAsync();
+            var accounts = await repository.GetAllAsync();
+
+            var pagedAccounts = accounts
+                                .Skip((pageNumber - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
+
+            return pagedAccounts.Select(AccountMapping);
         }
 
+
         //Update account
-        public async Task<Account> UpdateAccountAsync(string id, Account account)
+        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, Account account)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
@@ -51,7 +77,7 @@ namespace XuongMay.Services.Service
             if (existingAccount == null)
                 return null;
 
-            // Update thuộc tính
+            // Update properties
             existingAccount.Name = account.Name;
             existingAccount.Password = account.Password;
             existingAccount.Status = account.Status;
@@ -59,8 +85,9 @@ namespace XuongMay.Services.Service
 
             repository.Update(existingAccount);
 
-            return existingAccount;
+            return AccountMapping(existingAccount);
         }
+
 
         public async Task<bool> DeleteAccountAsync(string id)
         {
@@ -68,13 +95,15 @@ namespace XuongMay.Services.Service
                 return false;
 
             var repository = _unitOfWork.GetRepository<Account>();
-            var account = await repository.GetByIdAsync(objectId);
-            if (account == null)
+            var existingAccount = await repository.GetByIdAsync(objectId);
+            if (existingAccount == null)
                 return false;
 
-            await repository.DeleteAsync(objectId);
-            //await _unitOfWork.SaveAsync();
+            // Update trạng thái thành Unavailable
+            existingAccount.Status = "Unavailable";
+         
 
+            repository.Update(existingAccount);
             return true;
         }
 

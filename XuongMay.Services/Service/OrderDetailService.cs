@@ -20,11 +20,20 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync()
+        public async Task<IEnumerable<OrderDetail>> GetPaginatedOrderDetailsAsync(int pageNumber, int pageSize)
         {
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            return await repository.GetAllAsync();
+            var orderDetails = await repository.GetAllAsync();
+
+            // Apply pagination using Skip and Take
+            var pagedOrderDetails = orderDetails
+                                    .Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+            return pagedOrderDetails;
         }
+
 
         public async Task<OrderDetail> GetOrderDetailByIdAsync(string id)
         {
@@ -85,6 +94,22 @@ namespace XuongMay.Services.Service
             await _unitOfWork.SaveAsync();
 
             return true;
+        }
+
+        public async Task<OrderDetail> CancelOrderDetailAsync(string id)
+        {
+            OrderDetail orderDetail = new();
+            orderDetail.Id = ObjectId.Parse(id);
+            var repository = _unitOfWork.GetRepository<OrderDetail>();
+            var existingOrderDetail = await repository.GetByIdAsync(orderDetail.Id);
+            if (existingOrderDetail == null)
+                return null;
+            existingOrderDetail.Status = "Canceled";
+
+            repository.Update(existingOrderDetail);
+            //await _unitOfWork.SaveAsync();
+
+            return existingOrderDetail;
         }
     }
 }

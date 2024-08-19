@@ -26,9 +26,9 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <returns>A list of all categories.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetAllCategories(int page = 1, int pageSize = 5)
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetCategoriesByPageAsync(page, pageSize);
             return Ok(categories);
         }
 
@@ -102,7 +102,7 @@ namespace XuongMayBE.API.Controllers
         /// <param name="id">The ID of the category to "delete".</param>
         /// <returns>No content if the operation is successful.</returns>
         [Authorize(Roles = "Manager")]
-        [HttpPatch("{id}")]
+        [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(string id)
         {
             var isUnavailable = await _categoryService.DeleteCategoryAsync(id);

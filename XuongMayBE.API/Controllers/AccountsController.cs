@@ -58,11 +58,13 @@ namespace XuongMayBE.API.Controllers
         /// <returns>A list of all accounts.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetAllAccounts()
+        public async Task<IActionResult> GetAllAccounts(int pageNumber = 1, int pageSize = 5)
         {
-            var accounts = await _accountService.GetAllAccountsAsync();
+            var accounts = await _accountService.GetAllAccountsAsync(pageNumber, pageSize);
             return Ok(accounts);
         }
+
+
 
         // PUT api/account/{id}
 

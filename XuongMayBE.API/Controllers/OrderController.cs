@@ -75,9 +75,27 @@ namespace XuongMayBE.API.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public IActionResult UpdateOrder()
+        public async Task<IActionResult> UpdateOrder(string id, [FromBody] Order order)
         {
-            return Ok();
+            if (order == null || id != order.Id.ToString())
+            {
+                return BadRequest("Invalid order data or ID mismatch.");
+            }
+
+            try
+            {
+                var updatedOrder = await _orderService.UpdateOrderAsync(id, order);
+                if (updatedOrder == null)
+                {
+                    return NotFound("Order not found.");
+                }
+
+                return Ok(updatedOrder);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Manager")]

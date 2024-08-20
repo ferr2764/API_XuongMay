@@ -117,13 +117,22 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Manager")]
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> CancelOrder(string id)
         {
             try
             {
                 var response = await _orderService.CancelOrderAsync(id);
-                return NoContent();
+                if(response == false)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    return NoContent();
+                }
             }
             catch (Exception ex)
             {

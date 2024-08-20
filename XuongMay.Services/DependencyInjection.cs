@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using XuongMay.Contract.Repositories.Interface;
+using XuongMay.Repositories;
 
 namespace XuongMay.Services
 {

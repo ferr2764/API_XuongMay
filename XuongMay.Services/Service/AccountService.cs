@@ -68,7 +68,7 @@ namespace XuongMay.Services.Service
 
 
         //Update account
-        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelVIew account)
+        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelView account)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;

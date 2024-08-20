@@ -121,9 +121,8 @@ namespace XuongMay.Services.Service
                 default:
                     return null;
             }
-
             await repository.UpdateAsync(order);
-            //await _unitOfWork.SaveAsync();
+
 
             return order;
         }
@@ -190,9 +189,8 @@ namespace XuongMay.Services.Service
             // Gán đơn hàng cho nhân viên
             order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
             order.Status = "Assigned";
-
             await repository.UpdateAsync(order);
-            //await _unitOfWork.SaveAsync();
+
 
             return order;
         }

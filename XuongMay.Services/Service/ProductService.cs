@@ -63,7 +63,6 @@ namespace XuongMay.Services.Service
             };
             var repository = _unitOfWork.GetRepository<Product>();
             await repository.InsertAsync(product);
-            //await _unitOfWork.SaveAsync();
             return product;
         }
 
@@ -82,9 +81,8 @@ namespace XuongMay.Services.Service
             existingProduct.ProductSize = product.ProductSize;
             existingProduct.Status = product.Status;
             existingProduct.CategoryId = ObjectId.Parse(product.CategoryId);
-
             await repository.UpdateAsync(existingProduct);
-            //await _unitOfWork.SaveAsync();
+
 
             return existingProduct;
         }
@@ -101,9 +99,8 @@ namespace XuongMay.Services.Service
 
             // Update trạng thái thành Unavailable
             existingProduct.Status = "Unavailable";
-           
             await repository.UpdateAsync(existingProduct);
-            //await _unitOfWork.SaveAsync();
+
 
             return true;
         }

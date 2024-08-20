@@ -15,11 +15,6 @@ namespace XuongMay.Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        //public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
-        //{
-        //    var repository = _unitOfWork.GetRepository<Category>();
-        //    return await repository.GetAllAsync();
-        //}
 
         public async Task<IEnumerable<Category>> GetCategoriesByPageAsync(int page, int pageSize)
         {
@@ -75,7 +70,7 @@ namespace XuongMay.Services.Service
             existingCategory.CategoryStatus = category.CategoryStatus;
 
             await repository.UpdateAsync(existingCategory);
-           // await _unitOfWork.SaveAsync();
+
 
             return existingCategory;
         }
@@ -92,9 +87,8 @@ namespace XuongMay.Services.Service
 
             // Update trạng thái thành Unavailable
             existingCategory.CategoryStatus = "Unavailable";
-
             await repository.UpdateAsync(existingCategory);
-            // await _unitOfWork.SaveAsync();
+
 
             return true;
         }

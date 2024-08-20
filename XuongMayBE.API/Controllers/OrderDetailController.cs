@@ -8,7 +8,7 @@ namespace XuongMayBE.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderDetailController : Controller
+    public class OrderDetailController : ControllerBase
     {
         private readonly IOrderDetailService _orderDetailService;
 
@@ -116,7 +116,7 @@ namespace XuongMayBE.API.Controllers
         {
             try
             {
-                var response = await _orderDetailService.CancelOrderDetailAsync(id);
+                await _orderDetailService.CancelOrderDetailAsync(id);
                 return NoContent();
             }
             catch (Exception ex)

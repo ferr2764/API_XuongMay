@@ -12,7 +12,7 @@ public class DatabaseContext
         _dbcontext = client.GetDatabase(configuration["DatabaseName"]);
     }
 
-    public IMongoCollection<Account> Accounts => _dbcontext.GetCollection<Account>("Accounts");
+    public IMongoCollection<Account> Accounts => _dbcontext.GetCollection<Account>("Account");
     public IMongoCollection<Order> Orders => _dbcontext.GetCollection<Order>("Orders");
     public IMongoCollection<OrderDetail> OrderDetails => _dbcontext.GetCollection<OrderDetail>("OrderDetails");
     public IMongoCollection<Category> Categories => _dbcontext.GetCollection<Category>("Categories");

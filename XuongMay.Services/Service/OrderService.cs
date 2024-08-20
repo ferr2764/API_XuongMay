@@ -46,7 +46,7 @@ namespace XuongMay.Services.Service
                 AccountId = ObjectId.Parse(orderViewModel.AccountId),
                 Deadline = orderViewModel.Deadline,
                 Status = "Created",
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.UtcNow
             };
 
             var repository = _unitOfWork.GetRepository<Order>();
@@ -114,7 +114,7 @@ namespace XuongMay.Services.Service
                     break;
                 case "Assigned":
                     order.Status = "Completed";
-                    order.FinishDate = DateTime.Now;
+                    order.FinishDate = DateTime.UtcNow;
                     break;
                 case "Completed":
                     return null; // Không thể chuyển trạng thái từ Completed

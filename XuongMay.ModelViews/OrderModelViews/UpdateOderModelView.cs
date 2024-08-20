@@ -6,7 +6,7 @@ namespace XuongMay.ModelViews.OrderModelViews
     {
         public required string Status { get; set; }
         public required DateTime Deadline { get; set; }
-        public DateTime? FinishDate { get; set; } // Nullable in case it hasn't been finished yet
-        public string? AssignedAccountId { get; set; } // Nullable if want to allow updates without reassigning
+        public DateTime? FinishDate { get; set; } 
+        public string? AssignedAccountId { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using XuongMay.Contract.Repositories.IUOW;
+﻿using XuongMay.Contract.Repositories.IUOW;
 
 namespace XuongMay.Contract.Repositories.Interface
 {

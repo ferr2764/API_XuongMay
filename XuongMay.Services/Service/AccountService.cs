@@ -4,6 +4,7 @@ using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.AccountModelView;
+using XuongMay.ModelViews.AuthModelViews;
 
 namespace XuongMay.Services.Service
 {
@@ -67,7 +68,7 @@ namespace XuongMay.Services.Service
 
 
         //Update account
-        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, Account account)
+        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelVIew account)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
@@ -79,8 +80,8 @@ namespace XuongMay.Services.Service
 
             // Update properties
             existingAccount.Name = account.Name;
+            existingAccount.Username = account.Username;
             existingAccount.Password = account.Password;
-            existingAccount.Status = account.Status;
             existingAccount.Salary = account.Salary;
 
             repository.Update(existingAccount);

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace XuongMay.ModelViews.AuthModelViews
 {
-    internal class UpdateAccountModelVIew
+    public class UpdateAccountModelVIew
     {
         public required string Name { get; set; }
         public required string Username { get; set; }

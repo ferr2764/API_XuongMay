@@ -2,7 +2,6 @@
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
-using XuongMay.Core.Utils;
 using XuongMay.ModelViews.CategoryModelViews;
 
 namespace XuongMay.Services.Service

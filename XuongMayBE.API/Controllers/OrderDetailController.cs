@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderDetailModelView;
-using XuongMay.Services.Service;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -112,6 +110,7 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> CancelOrder(string id)
         {

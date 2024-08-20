@@ -23,6 +23,7 @@ namespace XuongMayBE.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the order detail.</param>
         /// <returns>The order detail.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderDetailById(string id)
         {
@@ -50,10 +51,13 @@ namespace XuongMayBE.API.Controllers
         /// Get order details by order ID.
         /// </summary>
         /// <returns>A list of order details for a specific order.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet("order/{orderId}")]
-        public IActionResult GetOrderDetailByOrderId()
+        public async Task<IActionResult> GetOrderDetailByOrderId(string orderId)
         {
-            return Ok();
+
+            var orderDetail = await _orderDetailService.GetOrderDetailsByOrderIdAsync(orderId);
+            return Ok(orderDetail);
         }
 
         /// <summary>

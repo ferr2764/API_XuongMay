@@ -125,5 +125,24 @@ namespace XuongMayBE.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}/status/next")]
+        public async Task<IActionResult> MoveToNextStatus(string id)
+        {
+            try
+            {
+                var orderDetail = await _orderDetailService.MoveToNextStatusAsync(id);
+                if (orderDetail == null)
+                {
+                    return BadRequest("Unable to move to the next status. Order detail may be completed or cancelled.");
+                }
+
+                return Ok(orderDetail);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

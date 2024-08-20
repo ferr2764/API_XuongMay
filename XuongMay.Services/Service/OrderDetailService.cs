@@ -123,5 +123,26 @@ namespace XuongMay.Services.Service
 
             return existingOrderDetail;
         }
+
+        public async Task<OrderDetail> MoveToNextStatusAsync(string id)
+        {
+            if (!ObjectId.TryParse(id, out var objectId))
+                return null;
+
+            var repository = _unitOfWork.GetRepository<OrderDetail>();
+            var orderDetail = await repository.GetByIdAsync(objectId);
+            if (orderDetail == null)
+                return null;
+            if (orderDetail.Status.Equals("Created"))
+            {
+                orderDetail.Status = "Completed";
+            }
+            else return null;
+
+            repository.Update(orderDetail);
+            //await _unitOfWork.SaveAsync();
+
+            return orderDetail;
+        }
     }
 }

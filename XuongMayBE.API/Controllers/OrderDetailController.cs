@@ -110,6 +110,7 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> CancelOrder(string id)
         {

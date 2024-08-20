@@ -4,7 +4,7 @@ using MongoDB.Driver;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Core;
 
-namespace XuongMay.Repositories.UOW
+namespace XuongMay.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

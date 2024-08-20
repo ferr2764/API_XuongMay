@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
+using XuongMay.ModelViews.AuthModelViews;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -74,7 +74,7 @@ namespace XuongMayBE.API.Controllers
         /// <returns>No content if the update is successful.</returns>
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAccount(string id, [FromBody] Account updatedAccount)
+        public async Task<IActionResult> UpdateAccount(string id, [FromBody] UpdateAccountModelView updatedAccount)
         {
             if (updatedAccount == null)
             {

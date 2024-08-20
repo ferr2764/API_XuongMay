@@ -1,5 +1,5 @@
-using XuongMay.Contract.Repositories.Entity;
 using XuongMay.ModelViews.AccountModelView;
+using XuongMay.ModelViews.AuthModelViews;
 
 namespace XuongMay.Contract.Services.Interface
 {
@@ -8,7 +8,7 @@ namespace XuongMay.Contract.Services.Interface
         Task<ExposeAccountModelView> GetAccountByIdAsync(string id);
         Task<IEnumerable<ExposeAccountModelView>> GetAccountsByRoleAsync(string role);
         Task<IEnumerable<ExposeAccountModelView>> GetAllAccountsAsync(int pageNumber = 1, int pageSize = 5);
-        Task<ExposeAccountModelView> UpdateAccountAsync(string id, Account account);
+        Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelView account);
         Task<bool> DeleteAccountAsync(string id);
         Task UpdateAccountRoleAsync(string accountId, string newRole);
     }

@@ -74,7 +74,6 @@ namespace XuongMay.Services.Service
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             await repository.InsertAsync(orderDetail);
-            //await _unitOfWork.SaveAsync();
             return orderDetail;
         }
 

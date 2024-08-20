@@ -1,12 +1,12 @@
 ﻿
 namespace XuongMay.ModelViews.AuthModelViews
 {
-    internal class UpdateAccountModelVIew
+    public class UpdateAccountModelView
     {
         public required string Name { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public required string Salary { get; set; }
+        public required int Salary { get; set; }
 
 
     }

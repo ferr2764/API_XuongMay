@@ -154,7 +154,6 @@ namespace XuongMay.Services.Service
                 }
             }
 
-            await _unitOfWork.SaveAsync();
 
             return true;
         }

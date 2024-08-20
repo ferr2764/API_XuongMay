@@ -1,6 +1,5 @@
 ﻿using MongoDB.Driver;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Repositories.UOW;

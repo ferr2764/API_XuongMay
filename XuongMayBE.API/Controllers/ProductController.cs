@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using MongoDB.Bson;
 using XuongMay.ModelViews.ProductModelViews;

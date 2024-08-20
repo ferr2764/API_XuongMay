@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using System.Threading.Tasks;
-using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.CategoryModelViews;
 

@@ -73,7 +73,7 @@ namespace XuongMay.Services.Service
                                               : ObjectId.Parse(order.AssignedAccountId);
 
 
-            repository.Update(existingOrder);
+            await repository.UpdateAsync(existingOrder);
 
             return existingOrder;
         }
@@ -91,7 +91,7 @@ namespace XuongMay.Services.Service
             // Update trạng thái thành Unavailable
             existingOrder.Status = "Unavailable";
 
-            repository.Update(existingOrder);
+            await repository.UpdateAsync(existingOrder);
 
             return true;
         }
@@ -122,7 +122,7 @@ namespace XuongMay.Services.Service
                     return null;
             }
 
-            repository.Update(order);
+            await repository.UpdateAsync(order);
             //await _unitOfWork.SaveAsync();
 
             return order;
@@ -191,7 +191,7 @@ namespace XuongMay.Services.Service
             order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
             order.Status = "Assigned";
 
-            repository.Update(order);
+            await repository.UpdateAsync(order);
             //await _unitOfWork.SaveAsync();
 
             return order;

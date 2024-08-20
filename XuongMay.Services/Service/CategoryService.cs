@@ -74,7 +74,7 @@ namespace XuongMay.Services.Service
             existingCategory.CategoryDescription = category.CategoryDescription;
             existingCategory.CategoryStatus = category.CategoryStatus;
 
-            repository.Update(existingCategory);
+            await repository.UpdateAsync(existingCategory);
            // await _unitOfWork.SaveAsync();
 
             return existingCategory;
@@ -93,7 +93,7 @@ namespace XuongMay.Services.Service
             // Update trạng thái thành Unavailable
             existingCategory.CategoryStatus = "Unavailable";
 
-            repository.Update(existingCategory);
+            await repository.UpdateAsync(existingCategory);
             // await _unitOfWork.SaveAsync();
 
             return true;

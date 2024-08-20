@@ -83,7 +83,7 @@ namespace XuongMay.Services.Service
             existingProduct.Status = product.Status;
             existingProduct.CategoryId = ObjectId.Parse(product.CategoryId);
 
-            repository.Update(existingProduct);
+            await repository.UpdateAsync(existingProduct);
             //await _unitOfWork.SaveAsync();
 
             return existingProduct;
@@ -102,7 +102,7 @@ namespace XuongMay.Services.Service
             // Update trạng thái thành Unavailable
             existingProduct.Status = "Unavailable";
            
-            repository.Update(existingProduct);
+            await repository.UpdateAsync(existingProduct);
             //await _unitOfWork.SaveAsync();
 
             return true;

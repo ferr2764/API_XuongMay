@@ -106,7 +106,7 @@ namespace XuongMay.Services.Service
             existingOrderDetail.Status = orderDetailModel.Status;
             existingOrderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
 
-            repository.Update(existingOrderDetail);
+            await repository.UpdateAsync(existingOrderDetail);
 
             return existingOrderDetail;
         }
@@ -124,7 +124,7 @@ namespace XuongMay.Services.Service
             // Update trạng thái thành Unavailable
             existingOrderDetail.Status = "Unavailable";
 
-            repository.Update(existingOrderDetail);
+            await repository.UpdateAsync(existingOrderDetail);
 
             return true;
         }
@@ -139,7 +139,7 @@ namespace XuongMay.Services.Service
                 return null;
             existingOrderDetail.Status = "Canceled";
 
-            repository.Update(existingOrderDetail);
+            await repository.UpdateAsync(existingOrderDetail);
 
             return existingOrderDetail;
         }
@@ -159,7 +159,7 @@ namespace XuongMay.Services.Service
             }
             else return null;
 
-            repository.Update(orderDetail);
+            await repository.UpdateAsync(orderDetail);
 
             return orderDetail;
         }

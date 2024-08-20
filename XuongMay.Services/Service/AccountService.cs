@@ -84,7 +84,7 @@ namespace XuongMay.Services.Service
             existingAccount.Password = account.Password;
             existingAccount.Salary = account.Salary;
 
-            repository.Update(existingAccount);
+            await repository.UpdateAsync(existingAccount);
 
             return AccountMapping(existingAccount);
         }
@@ -104,7 +104,7 @@ namespace XuongMay.Services.Service
             existingAccount.Status = "Unavailable";
          
 
-            repository.Update(existingAccount);
+            await repository.UpdateAsync(existingAccount);
             return true;
         }
 

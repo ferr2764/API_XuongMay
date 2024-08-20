@@ -12,9 +12,11 @@ namespace XuongMay.Contract.Services.Interface
     {
         Task<IEnumerable<OrderDetail>> GetPaginatedOrderDetailsAsync(int pageNumber, int pageSize);
         Task<OrderDetail> GetOrderDetailByIdAsync(string id);
+        Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(string orderId);
         Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetail);
         Task<OrderDetail> UpdateOrderDetailAsync(string id, OrderDetail orderDetail);
         Task<bool> DeleteOrderDetailAsync(string id);
         Task<OrderDetail> CancelOrderDetailAsync(string id);
+        Task<OrderDetail> MoveToNextStatusAsync(string id);
     }
 }

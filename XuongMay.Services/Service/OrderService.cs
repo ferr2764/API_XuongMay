@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
@@ -133,19 +134,32 @@ namespace XuongMay.Services.Service
             if (!ObjectId.TryParse(id, out var objectId))
                 return false;
 
-            var repository = _unitOfWork.GetRepository<Order>();
-            var order = await repository.GetByIdAsync(objectId);
-            if (order == null || order.Status == "Completed")
+            var orderRepository = _unitOfWork.GetRepository<Order>();
+            var order = await orderRepository.GetByIdAsync(objectId);
+            if (order == null || order.Status == "Completed" || order.Status == "Unavailable" || order.Status == "Cancelled")
                 return false;
 
-            // Hủy đơn hàng
             order.Status = "Cancelled";
+            orderRepository.Update(order);
 
-            repository.Update(order);
+            var orderDetailRepository = _unitOfWork.GetRepository<OrderDetail>();
+            var filter = Builders<OrderDetail>.Filter.Eq(od => od.OrderId, objectId);
+            var orderDetails = await orderDetailRepository.GetAllByFilterAsync(filter);
+
+            foreach (var orderDetail in orderDetails)
+            {
+                if (orderDetail.Status != "Completed")
+                {
+                    orderDetail.Status = "Canceled";
+                    orderDetailRepository.Update(orderDetail);
+                }
+            }
+
             await _unitOfWork.SaveAsync();
 
             return true;
         }
+
 
         public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
         {
@@ -163,6 +177,16 @@ namespace XuongMay.Services.Service
             if (account == null || account.Status == "Unavailable")
             {
                 throw new Exception("Cannot assign order to an unavailable account.");
+            }
+
+            // Check if the account has the role "Manager"
+
+            if (account.Role == "Manager")
+
+            {
+
+                throw new Exception("Cannot assign order to an account with the role 'Manager'.");
+
             }
 
             // Gán đơn hàng cho nhân viên

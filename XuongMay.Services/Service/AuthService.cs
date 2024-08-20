@@ -37,7 +37,7 @@ namespace XuongMay.Services.Service
                 Name = registerModel.Name,
                 Username = registerModel.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerModel.Password),
-                Role = "Customer", 
+                Role = "Employee", 
                 Salary = 1000,
                 Status = "Available"
             };

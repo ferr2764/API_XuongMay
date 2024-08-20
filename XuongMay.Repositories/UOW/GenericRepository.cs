@@ -98,5 +98,10 @@ namespace XuongMay.Repositories.UOW
             // MongoDB operations are immediately committed; no-op here.
             await Task.CompletedTask;
         }
+
+        public async Task<IEnumerable<T>> GetAllByFilterAsync(FilterDefinition<T> filter)
+        {
+            return await _collection.Find(filter).ToListAsync();
+        }
     }
 }

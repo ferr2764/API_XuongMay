@@ -22,5 +22,6 @@ namespace XuongMay.Contract.Repositories.IUOW
 
         // Delete an order detail by Id
         Task<bool> DeleteAsync(ObjectId id);
+
     }
 }

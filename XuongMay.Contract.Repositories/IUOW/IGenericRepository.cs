@@ -31,5 +31,6 @@ namespace XuongMay.Contract.Repositories.IUOW
         Task UpdateAsync(T obj);
         Task DeleteAsync(ObjectId id);
         Task SaveAsync();
+        Task<IEnumerable<T>> GetAllByFilterAsync(FilterDefinition<T> filter);
     }
 }

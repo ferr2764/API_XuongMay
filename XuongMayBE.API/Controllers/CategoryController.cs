@@ -22,6 +22,7 @@ namespace XuongMayBE.API.Controllers
         /// Get all categories.
         /// </summary>
         /// <returns>A list of all categories.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllCategories(int page = 1, int pageSize = 5)
         {

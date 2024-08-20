@@ -74,7 +74,6 @@ namespace XuongMay.Services.Service
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             await repository.InsertAsync(orderDetail);
-            //await _unitOfWork.SaveAsync();
             return orderDetail;
         }
 
@@ -108,7 +107,6 @@ namespace XuongMay.Services.Service
             existingOrderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
 
             repository.Update(existingOrderDetail);
-            await _unitOfWork.SaveAsync();
 
             return existingOrderDetail;
         }
@@ -127,7 +125,6 @@ namespace XuongMay.Services.Service
             existingOrderDetail.Status = "Unavailable";
 
             repository.Update(existingOrderDetail);
-            await _unitOfWork.SaveAsync();
 
             return true;
         }
@@ -143,7 +140,6 @@ namespace XuongMay.Services.Service
             existingOrderDetail.Status = "Canceled";
 
             repository.Update(existingOrderDetail);
-            //await _unitOfWork.SaveAsync();
 
             return existingOrderDetail;
         }
@@ -164,7 +160,6 @@ namespace XuongMay.Services.Service
             else return null;
 
             repository.Update(orderDetail);
-            //await _unitOfWork.SaveAsync();
 
             return orderDetail;
         }

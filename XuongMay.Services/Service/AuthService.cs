@@ -48,8 +48,7 @@ namespace XuongMay.Services.Service
 
         public async Task<(string Token, Account User)> AuthenticateUserAsync(string username, string password)
         {
-            // Find the user by username
-            var user = await _accounts.Find(a => a.Username == username).FirstOrDefaultAsync();
+            var user = await _accounts.Find(a => a.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
                 throw new Exception("Invalid username or password");

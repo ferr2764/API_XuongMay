@@ -39,7 +39,10 @@ namespace XuongMay.Services.Service
             var repository = _unitOfWork.GetRepository<Account>();
             var account = await repository.GetByIdAsync(objectId);
             if (account == null)
+            {
                 return null;
+            }
+                
 
             return AccountMapping(account);
         }
@@ -71,12 +74,16 @@ namespace XuongMay.Services.Service
         public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelView account)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Account>();
             var existingAccount = await repository.GetByIdAsync(objectId);
             if (existingAccount == null)
+            {
                 return null;
+            }
 
             // Update properties
             existingAccount.Name = account.Name;
@@ -98,7 +105,9 @@ namespace XuongMay.Services.Service
             var repository = _unitOfWork.GetRepository<Account>();
             var existingAccount = await repository.GetByIdAsync(objectId);
             if (existingAccount == null)
+            {
                 return false;
+            }
 
             // Update trạng thái thành Unavailable
             existingAccount.Status = "Unavailable";

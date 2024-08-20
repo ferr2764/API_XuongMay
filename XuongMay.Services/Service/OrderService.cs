@@ -33,7 +33,9 @@ namespace XuongMay.Services.Service
         public async Task<Order> GetOrderByIdAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Order>();
             return await repository.GetByIdAsync(objectId);
@@ -57,14 +59,17 @@ namespace XuongMay.Services.Service
         public async Task<Order> UpdateOrderAsync(string id, UpdateOrderModelView order)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Order>();
             var existingOrder = await repository.GetByIdAsync(objectId);
             if (existingOrder == null)
+            {
                 return null;
+            }
 
-            // Update các thuộc tính cần thiết
             existingOrder.Status = order.Status;
             existingOrder.Deadline = order.Deadline;
             existingOrder.FinishDate = order.FinishDate;
@@ -81,12 +86,16 @@ namespace XuongMay.Services.Service
         public async Task<bool> DeleteOrderAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return false;
+            }
 
             var repository = _unitOfWork.GetRepository<Order>();
             var existingOrder = await repository.GetByIdAsync(objectId);
             if (existingOrder == null)
+            {
                 return false;
+            }
 
             // Update trạng thái thành Unavailable
             existingOrder.Status = "Unavailable";
@@ -99,12 +108,16 @@ namespace XuongMay.Services.Service
         public async Task<Order> MoveToNextStatusAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Order>();
             var order = await repository.GetByIdAsync(objectId);
             if (order == null)
+            {
                 return null;
+            }
 
             // Chuyển trạng thái theo thứ tự
             switch (order.Status)
@@ -130,12 +143,16 @@ namespace XuongMay.Services.Service
         public async Task<bool> CancelOrderAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return false;
+            }
 
             var orderRepository = _unitOfWork.GetRepository<Order>();
             var order = await orderRepository.GetByIdAsync(objectId);
             if (order == null || order.Status == "Completed" || order.Status == "Unavailable" || order.Status == "Cancelled")
+            {
                 return false;
+            }
 
             order.Status = "Cancelled";
             orderRepository.Update(order);
@@ -161,12 +178,16 @@ namespace XuongMay.Services.Service
         public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Order>();
             var order = await repository.GetByIdAsync(objectId);
             if (order == null)
+            {
                 return null;
+            }
 
             var accountRepository = _unitOfWork.GetRepository<Account>();
             var account = await accountRepository.GetByIdAsync(ObjectId.Parse(assignOrderModelView.AccountId));
@@ -179,19 +200,13 @@ namespace XuongMay.Services.Service
             // Check if the account has the role "Manager"
 
             if (account.Role == "Manager")
-
             {
-
                 throw new Exception("Cannot assign order to an account with the role 'Manager'.");
-
             }
 
-            // Gán đơn hàng cho nhân viên
             order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
             order.Status = "Assigned";
             await repository.UpdateAsync(order);
-
-
             return order;
         }
     }

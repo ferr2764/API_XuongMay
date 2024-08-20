@@ -34,7 +34,9 @@ namespace XuongMay.Services.Service
         public async Task<OrderDetail> GetOrderDetailByIdAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             return await repository.GetByIdAsync(objectId);
@@ -43,7 +45,9 @@ namespace XuongMay.Services.Service
         public async Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(string orderId)
         {
             if (!ObjectId.TryParse(orderId, out var objectId))
+            {
                 return Enumerable.Empty<OrderDetail>();
+            }
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             var allOrderDetails = await repository.GetAllAsync();
@@ -80,12 +84,16 @@ namespace XuongMay.Services.Service
         public async Task<OrderDetail> UpdateOrderDetailAsync(string id, UpdateOrderDetailModelView orderDetailModel)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             var existingOrderDetail = await repository.GetByIdAsync(objectId);
             if (existingOrderDetail == null)
+            {
                 return null;
+            }
 
             // Fetch and validate the new product from the repository
             if (!ObjectId.TryParse(orderDetailModel.ProductId, out var newProductId))

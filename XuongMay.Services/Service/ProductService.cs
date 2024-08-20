@@ -32,7 +32,9 @@ namespace XuongMay.Services.Service
         public async Task<Product> GetProductByIdAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Product>();
             return await repository.GetByIdAsync(objectId);
@@ -69,12 +71,16 @@ namespace XuongMay.Services.Service
         public async Task<Product> UpdateProductAsync(string id, UpdateProductModelView product)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return null;
+            }
 
             var repository = _unitOfWork.GetRepository<Product>();
             var existingProduct = await repository.GetByIdAsync(objectId);
             if (existingProduct == null)
+            {
                 return null;
+            }
 
             // Update các thuộc tính cần thiết
             existingProduct.ProductName = product.ProductName;
@@ -90,12 +96,16 @@ namespace XuongMay.Services.Service
         public async Task<bool> DeleteProductAsync(string id)
         {
             if (!ObjectId.TryParse(id, out var objectId))
+            {
                 return false;
+            }
 
             var repository = _unitOfWork.GetRepository<Product>();
             var existingProduct = await repository.GetByIdAsync(objectId);
             if (existingProduct == null)
+            {
                 return false;
+            }
 
             // Update trạng thái thành Unavailable
             existingProduct.Status = "Unavailable";

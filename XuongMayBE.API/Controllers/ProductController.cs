@@ -23,6 +23,7 @@ namespace XuongMayBE.API.Controllers
         /// Get all products.
         /// </summary>
         /// <returns>A list of all products.</returns>
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetProducts(int pageNumber = 1, int pageSize = 5)
         {

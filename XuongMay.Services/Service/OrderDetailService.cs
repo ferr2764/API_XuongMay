@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,18 @@ namespace XuongMay.Services.Service
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             return await repository.GetByIdAsync(objectId);
         }
+
+        public async Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(string orderId)
+        {
+            if (!ObjectId.TryParse(orderId, out var objectId))
+                return Enumerable.Empty<OrderDetail>();
+
+            var repository = _unitOfWork.GetRepository<OrderDetail>();
+            var allOrderDetails = await repository.GetAllAsync();
+
+            return allOrderDetails.Where(od => od.OrderId == objectId);
+        }
+
 
         public async Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetailModel)
         {

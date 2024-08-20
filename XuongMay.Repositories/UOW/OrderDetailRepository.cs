@@ -43,5 +43,11 @@ namespace XuongMay.Repositories.UOW
             var result = await _orderDetails.DeleteOneAsync(od => od.Id == id);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
+
+        public async Task<IEnumerable<OrderDetail>> GetOrderDetailByOrderIdAsync(string orderId)
+        {
+            var objectId = ObjectId.Parse(orderId);
+            return await _orderDetails.Find(od => od.OrderId == objectId).ToListAsync();
+        }
     }
 }

@@ -165,6 +165,16 @@ namespace XuongMay.Services.Service
                 throw new Exception("Cannot assign order to an unavailable account.");
             }
 
+            // Check if the account has the role "Manager"
+
+            if (account.Role == "Manager")
+
+            {
+
+                throw new Exception("Cannot assign order to an account with the role 'Manager'.");
+
+            }
+
             // Gán đơn hàng cho nhân viên
             order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
             order.Status = "Assigned";

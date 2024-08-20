@@ -83,7 +83,7 @@ namespace XuongMay.Services.Service
             existingAccount.Status = account.Status;
             existingAccount.Salary = account.Salary;
 
-            repository.Update(existingAccount);
+            await repository.UpdateAsync(existingAccount);
 
             return AccountMapping(existingAccount);
         }
@@ -103,7 +103,7 @@ namespace XuongMay.Services.Service
             existingAccount.Status = "Unavailable";
          
 
-            repository.Update(existingAccount);
+            await repository.UpdateAsync(existingAccount);
             return true;
         }
 

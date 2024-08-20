@@ -14,7 +14,7 @@ namespace XuongMay.Contract.Services.Interface
         Task<OrderDetail> GetOrderDetailByIdAsync(string id);
         Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(string orderId);
         Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetail);
-        Task<OrderDetail> UpdateOrderDetailAsync(string id, OrderDetail orderDetail);
+        Task<OrderDetail> UpdateOrderDetailAsync(string id, UpdateOrderDetailModelView orderDetail);
         Task<bool> DeleteOrderDetailAsync(string id);
         Task<OrderDetail> CancelOrderDetailAsync(string id);
         Task<OrderDetail> MoveToNextStatusAsync(string id);

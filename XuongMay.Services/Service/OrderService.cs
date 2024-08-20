@@ -56,7 +56,7 @@ namespace XuongMay.Services.Service
             return order;
         }
 
-        public async Task<Order> UpdateOrderAsync(string id, Order order)
+        public async Task<Order> UpdateOrderAsync(string id, UpdateOrderModelView order)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
@@ -70,7 +70,10 @@ namespace XuongMay.Services.Service
             existingOrder.Status = order.Status;
             existingOrder.Deadline = order.Deadline;
             existingOrder.FinishDate = order.FinishDate;
-            existingOrder.AssignedAccountId = order.AssignedAccountId;
+            existingOrder.AssignedAccountId = string.IsNullOrEmpty(order.AssignedAccountId)
+                                              ? existingOrder.AssignedAccountId
+                                              : ObjectId.Parse(order.AssignedAccountId);
+
 
             repository.Update(existingOrder);
             await _unitOfWork.SaveAsync();

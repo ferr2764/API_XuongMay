@@ -67,7 +67,7 @@ namespace XuongMay.Services.Service
             return product;
         }
 
-        public async Task<Product> UpdateProductAsync(string id, Product product)
+        public async Task<Product> UpdateProductAsync(string id, UpdateProductModelView product)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
@@ -81,7 +81,7 @@ namespace XuongMay.Services.Service
             existingProduct.ProductName = product.ProductName;
             existingProduct.ProductSize = product.ProductSize;
             existingProduct.Status = product.Status;
-            existingProduct.CategoryId = product.CategoryId;
+            existingProduct.CategoryId = ObjectId.Parse(product.CategoryId);
 
             repository.Update(existingProduct);
             //await _unitOfWork.SaveAsync();

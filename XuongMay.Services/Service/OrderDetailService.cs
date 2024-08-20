@@ -83,7 +83,7 @@ namespace XuongMay.Services.Service
             return orderDetail;
         }
 
-        public async Task<OrderDetail> UpdateOrderDetailAsync(string id, OrderDetail orderDetail)
+        public async Task<OrderDetail> UpdateOrderDetailAsync(string id, UpdateOrderDetailModelView orderDetailModel)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;
@@ -93,8 +93,24 @@ namespace XuongMay.Services.Service
             if (existingOrderDetail == null)
                 return null;
 
-            existingOrderDetail.Status = orderDetail.Status;
-            existingOrderDetail.NumberOfProds = orderDetail.NumberOfProds;
+            // Fetch and validate the new product from the repository
+            if (!ObjectId.TryParse(orderDetailModel.ProductId, out var newProductId))
+            {
+                throw new Exception("Invalid Product ID.");
+            }
+
+            var productRepository = _unitOfWork.GetRepository<Product>();
+            var newProduct = await productRepository.GetByIdAsync(newProductId);
+
+            if (newProduct == null || newProduct.Status != "Available")
+            {
+                throw new Exception("Cannot assign an unavailable product to the order detail.");
+            }
+
+            // Update the relevant fields
+            existingOrderDetail.ProductId = newProductId;
+            existingOrderDetail.Status = orderDetailModel.Status;
+            existingOrderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
 
             repository.Update(existingOrderDetail);
             await _unitOfWork.SaveAsync();

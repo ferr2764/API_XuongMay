@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Contract.Repositories.Entity;
@@ -14,7 +12,7 @@ namespace XuongMay.Repositories.UOW
 
         public AccountRepository(IMongoDatabase database)
         {
-            _accounts = database.GetCollection<Account>("Accounts");
+            _accounts = database.GetCollection<Account>("Account");
         }
 
         public async Task<IEnumerable<Account>> GetAllAsync()

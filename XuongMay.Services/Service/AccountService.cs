@@ -14,7 +14,7 @@ namespace XuongMay.Services.Service
 
         public AccountService(IMongoDatabase database, IUnitOfWork unitOfWork)
         {
-            _accounts = database.GetCollection<Account>("Accounts");
+            _accounts = database.GetCollection<Account>("Account");
             _unitOfWork = unitOfWork;
         }
 

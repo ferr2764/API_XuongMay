@@ -56,7 +56,6 @@ namespace XuongMay.Services.Service
 
             var repository = _unitOfWork.GetRepository<Category>();
             await repository.InsertAsync(category);
-            await _unitOfWork.SaveAsync();
 
             return category;
         }

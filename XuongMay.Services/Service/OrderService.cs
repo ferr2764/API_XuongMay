@@ -76,7 +76,6 @@ namespace XuongMay.Services.Service
 
 
             repository.Update(existingOrder);
-            await _unitOfWork.SaveAsync();
 
             return existingOrder;
         }
@@ -95,7 +94,6 @@ namespace XuongMay.Services.Service
             existingOrder.Status = "Unavailable";
 
             repository.Update(existingOrder);
-            await _unitOfWork.SaveAsync();
 
             return true;
         }
@@ -158,7 +156,6 @@ namespace XuongMay.Services.Service
                 }
             }
 
-            await _unitOfWork.SaveAsync();
 
             return true;
         }

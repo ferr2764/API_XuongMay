@@ -13,7 +13,7 @@ namespace XuongMay.Contract.Services.Interface
         Task<IEnumerable<Product>> GetPaginatedProductsAsync(int pageNumber, int pageSize);
         Task<Product> GetProductByIdAsync(string id);
         Task<Product> CreateProductAsync(CreateProductModelView product);
-        Task<Product> UpdateProductAsync(string id, Product product);
+        Task<Product> UpdateProductAsync(string id, UpdateProductModelView product);
         Task<bool> DeleteProductAsync(string id);
     }
 }

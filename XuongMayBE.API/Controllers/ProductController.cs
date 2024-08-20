@@ -84,17 +84,17 @@ namespace XuongMayBE.API.Controllers
         /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
+        public async Task<IActionResult> UpdateProduct(string id, [FromBody] UpdateProductModelView productModel)
         {
-            if (product == null || !ObjectId.TryParse(id, out var objectId) || objectId != product.Id)
+            if (productModel == null || !ObjectId.TryParse(id, out var objectId))
             {
-                return BadRequest("Invalid ID format or ID mismatch.");
+                return BadRequest("Invalid product data or ID format.");
             }
 
             try
             {
-                var updatedProduct = await _productService.UpdateProductAsync(id, product);
-                return updatedProduct != null ? NoContent() : NotFound();
+                var updatedProduct = await _productService.UpdateProductAsync(id, productModel);
+                return updatedProduct != null ? NoContent() : NotFound("Product not found.");
             }
             catch (Exception ex)
             {

@@ -14,7 +14,7 @@ namespace XuongMay.Contract.Services.Interface
         Task<IEnumerable<Category>> GetCategoriesByPageAsync(int page, int pageSize);
         Task<Category> GetCategoryByIdAsync(string id);
         Task<Category> CreateCategoryAsync(CreateCategoryModelView category);
-        Task<Category> UpdateCategoryAsync(string id, Category category);
+        Task<Category> UpdateCategoryAsync(string id, UpdateCategoryModelView category);
         Task<bool> DeleteCategoryAsync(string id);
     }
 }

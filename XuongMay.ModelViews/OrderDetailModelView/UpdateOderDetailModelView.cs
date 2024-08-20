@@ -7,10 +7,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace XuongMay.ModelViews.OrderDetailModelView
 {
-    public class CreateOrderDetailModelView
+    public class UpdateOrderDetailModelView
     {
-        public required string OrderId { get; set; }
         public required string ProductId { get; set; }
+        public required string Status { get; set; }
         public required int NumberOfProds { get; set; }
     }
 }

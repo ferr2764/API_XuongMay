@@ -61,7 +61,7 @@ namespace XuongMay.Services.Service
             return category;
         }
 
-        public async Task<Category> UpdateCategoryAsync(string id, Category category)
+        public async Task<Category> UpdateCategoryAsync(string id, UpdateCategoryModelView category)
         {
             if (!ObjectId.TryParse(id, out var objectId))
                 return null;

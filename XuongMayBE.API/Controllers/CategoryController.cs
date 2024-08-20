@@ -83,19 +83,20 @@ namespace XuongMayBE.API.Controllers
         /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(string id, [FromBody] Category category)
+        public async Task<IActionResult> UpdateCategory(string id, [FromBody] UpdateCategoryModelView category)
         {
-            if (!ObjectId.TryParse(id, out var objectId) || objectId != category.Id)
+            if (!ObjectId.TryParse(id, out var objectId))
             {
-                return BadRequest("Invalid ID format or ID mismatch.");
+                return BadRequest("Invalid ID format.");
             }
+
 
             try
             {
                 var updatedCategory = await _categoryService.UpdateCategoryAsync(id, category);
                 if (updatedCategory == null)
                 {
-                    return NotFound();
+                    return NotFound("Category not found.");
                 }
 
                 return NoContent();
@@ -126,7 +127,7 @@ namespace XuongMayBE.API.Controllers
                 var isUnavailable = await _categoryService.DeleteCategoryAsync(id);
                 if (!isUnavailable)
                 {
-                    return NotFound();
+                    return NotFound("Category not found.");
                 }
 
                 return NoContent();

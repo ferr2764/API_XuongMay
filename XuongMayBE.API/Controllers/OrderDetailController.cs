@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderDetailModelView;
@@ -89,26 +90,21 @@ namespace XuongMayBE.API.Controllers
         /// Update an existing order detail.
         /// </summary>
         /// <param name="id">The ID of the order detail to update.</param>
-        /// <param name="orderDetail">The updated order detail data.</param>
+        /// <param name="orderDetailModel">The updated order detail data.</param>
         /// <returns>The updated order detail.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrderDetail(string id, [FromBody] OrderDetail orderDetail)
+        public async Task<IActionResult> UpdateOrderDetail(string id, [FromBody] UpdateOrderDetailModelView orderDetailModel)
         {
-            if (orderDetail == null || id != orderDetail.Id.ToString())
+            if (orderDetailModel == null || !ObjectId.TryParse(id, out var objectId))
             {
-                return BadRequest("Invalid Order Detail data or ID mismatch.");
+                return BadRequest("Invalid Order Detail data or ID format.");
             }
 
             try
             {
-                var updatedOrderDetail = await _orderDetailService.UpdateOrderDetailAsync(id, orderDetail);
-                if (updatedOrderDetail == null)
-                {
-                    return NotFound("Order detail not found.");
-                }
-
-                return Ok(updatedOrderDetail);
+                var updatedOrderDetail = await _orderDetailService.UpdateOrderDetailAsync(id, orderDetailModel);
+                return updatedOrderDetail != null ? Ok(updatedOrderDetail) : NotFound("Order detail not found.");
             }
             catch (Exception ex)
             {

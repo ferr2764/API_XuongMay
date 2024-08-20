@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderModelViews;
@@ -75,28 +76,24 @@ namespace XuongMayBE.API.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(string id, [FromBody] Order order)
+        public async Task<IActionResult> UpdateOrder(string id, [FromBody] UpdateOrderModelView order)
         {
-            if (order == null || id != order.Id.ToString())
+            if (order == null || !ObjectId.TryParse(id, out var objectId))
             {
-                return BadRequest("Invalid order data or ID mismatch.");
+                return BadRequest("Invalid order data or ID format.");
             }
 
             try
             {
                 var updatedOrder = await _orderService.UpdateOrderAsync(id, order);
-                if (updatedOrder == null)
-                {
-                    return NotFound("Order not found.");
-                }
-
-                return Ok(updatedOrder);
+                return updatedOrder != null ? Ok(updatedOrder) : NotFound("Order not found.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
         [Authorize(Roles = "Manager")]
         [HttpPut("assign/{id}")]

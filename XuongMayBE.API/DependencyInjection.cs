@@ -6,6 +6,8 @@ using XuongMay.Services.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using XuongMay.Repositories;
 
 namespace XuongMayBE.API
 {
@@ -27,25 +29,13 @@ namespace XuongMayBE.API
                 options.LowercaseUrls = true;
             });
         }
-        public static void AddMongoDb(this IServiceCollection services, IConfiguration configuration)
-{
-    var connectionString = configuration["ConnectionStrings:MongoDb"];
-    var databaseName = configuration["MongoDbDatabase"];
-
-    services.AddSingleton<IMongoClient>(sp =>
-    {
-        return new MongoClient(connectionString);
-    });
-
-    services.AddSingleton(sp =>
-    {
-        var client = sp.GetRequiredService<IMongoClient>();
-        return client.GetDatabase(databaseName);
-    });
-
-    // Register the database name for use by UnitOfWork
-    services.AddSingleton(databaseName);
-}
+        public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<DatabaseContext>(options =>
+            {
+                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"));
+            });
+        }
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             // Registers authentication services and sets the default authentication scheme to JWT Bearer

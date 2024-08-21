@@ -4,27 +4,22 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Account
+    public partial class Account
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public string AccountId { get; set; } = null!;
 
-        [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        [BsonElement("username")]
-        public string Username { get; set; }
+        public string Email { get; set; } = null!;
 
-        [BsonElement("password")]
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
 
-        [BsonElement("role")]
-        public string? Role { get; set; }
+        public string Role { get; set; } = null!;
 
-        [BsonElement("salary")]
-        public int? Salary { get; set; }
+        public int Salary { get; set; }
 
-        [BsonElement("status")]
-        public string? Status { get; set; }
+        public virtual ICollection<Order> OrderAccounts { get; set; } = new List<Order>();
+
+        public virtual ICollection<Order> OrderAssignedAccounts { get; set; } = new List<Order>();
     }
 }

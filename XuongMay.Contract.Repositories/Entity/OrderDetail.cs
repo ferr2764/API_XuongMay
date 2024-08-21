@@ -4,23 +4,20 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class OrderDetail
+    public partial class OrderDetail
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public string DetailId { get; set; } = null!;
 
-        [BsonElement("numberOfProds")]
         public int NumberOfProds { get; set; }
 
-        [BsonElement("status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
-        [BsonElement("productId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId ProductId { get; set; }
+        public string OrderId { get; set; } = null!;
 
-        [BsonElement("orderId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId OrderId { get; set; }
+        public string ProductId { get; set; } = null!;
+
+        public virtual Order Order { get; set; } = null!;
+
+        public virtual Product Product { get; set; } = null!;
     }
 }

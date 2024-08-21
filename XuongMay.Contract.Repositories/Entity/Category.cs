@@ -3,18 +3,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Category
+    public partial class Category
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public string CategoryId { get; set; } = null!;
 
-        [BsonElement("categoryName")]
-        public string CategoryName { get; set; }
+        public string CategoryName { get; set; } = null!;
 
-        [BsonElement("categoryDescription")]
-        public string CategoryDescription { get; set; }
+        public string CategoryDescription { get; set; } = null!;
 
-        [BsonElement("categoryStatus")]
-        public string CategoryStatus { get; set; }
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

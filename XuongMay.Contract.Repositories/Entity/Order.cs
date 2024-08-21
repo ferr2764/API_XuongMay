@@ -4,29 +4,26 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Order
+    public partial class Order
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public string OrderId { get; set; } = null!;
 
-        [BsonElement("createdDate")]
-        public DateTime CreatedDate { get; set; }
+        public DateOnly CreatedDate { get; set; }
 
-        [BsonElement("finishDate")]
-        public DateTime? FinishDate { get; set; }
+        public DateOnly FinishDate { get; set; }
 
-        [BsonElement("status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
-        [BsonElement("deadline")]
-        public DateTime Deadline { get; set; }
+        public DateOnly Deadline { get; set; }
 
-        [BsonElement("accountId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId AccountId { get; set; }
+        public string AccountId { get; set; } = null!;
 
-        [BsonElement("assignedAccountId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId AssignedAccountId { get; set; }
+        public string AssignedAccountId { get; set; } = null!;
+
+        public virtual Account Account { get; set; } = null!;
+
+        public virtual Account AssignedAccount { get; set; } = null!;
+
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

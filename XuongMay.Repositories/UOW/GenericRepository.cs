@@ -11,10 +11,10 @@ namespace XuongMay.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(DatabaseContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();

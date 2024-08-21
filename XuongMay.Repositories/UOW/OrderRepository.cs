@@ -9,10 +9,10 @@ namespace XuongMay.Repositories.UOW
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly DbSet<Order> _orders;
 
-        public OrderRepository(DbContext context)
+        public OrderRepository(DatabaseContext context)
         {
             _context = context;
             _orders = context.Set<Order>();

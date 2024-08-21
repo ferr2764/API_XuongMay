@@ -9,10 +9,10 @@ namespace XuongMay.Repositories.UOW
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly DbSet<Category> _categories;
 
-        public CategoryRepository(DbContext context)
+        public CategoryRepository(DatabaseContext context)
         {
             _context = context;
             _categories = context.Set<Category>();

@@ -10,13 +10,13 @@ namespace XuongMay.Repositories.UOW
 {
     public class AccountRepository : IAccountRepository
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly DbSet<Account> _accounts;
 
-        public AccountRepository(DbContext context)
+        public AccountRepository(DatabaseContext context)
         {
             _context = context;
-            _accounts = context.Set<Account>();
+            _accounts = context.Accounts;
         }
 
         public async Task<IEnumerable<Account>> GetAllAsync()

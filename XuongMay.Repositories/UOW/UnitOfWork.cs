@@ -9,10 +9,10 @@ namespace XuongMay.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly ConcurrentDictionary<Type, object> _repositories;
 
-        public UnitOfWork(DbContext context)
+        public UnitOfWork(DatabaseContext context)
         {
             _context = context;
             _repositories = new ConcurrentDictionary<Type, object>();

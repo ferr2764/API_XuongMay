@@ -9,10 +9,10 @@ namespace XuongMay.Repositories.UOW
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly DbContext _context;
+        private readonly DatabaseContext _context;
         private readonly DbSet<Product> _products;
 
-        public ProductRepository(DbContext context)
+        public ProductRepository(DatabaseContext context)
         {
             _context = context;
             _products = context.Set<Product>();

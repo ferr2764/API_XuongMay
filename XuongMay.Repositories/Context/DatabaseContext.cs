@@ -1,36 +1,30 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using XuongMay.Contract.Repositories.Entity;
-using Microsoft.EntityFrameworkCore;
 
 namespace XuongMay.Repositories
 {
     public partial class DatabaseContext : DbContext
     {
-        public DatabaseContext()
-        {
-        }
+        private readonly IConfiguration _configuration;
 
-        public DatabaseContext(DbContextOptions<DatabaseContext> options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<Account> Accounts { get; set; }
-
         public virtual DbSet<Category> Categories { get; set; }
-
         public virtual DbSet<Order> Orders { get; set; }
-
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
-
         public virtual DbSet<Product> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=115.73.218.193,1433;Database=XuongMay;User Id=user;Password=12345;Encrypt=false;TrustServerCertificate=true;");
+                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("MyCnn"));
             }
         }
 
@@ -69,10 +63,9 @@ namespace XuongMay.Repositories
                 entity.Property(e => e.ProductId).HasDefaultValueSql("NEWID()");
             });
 
+            OnModelCreatingPartial(modelBuilder);
         }
-
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
-
 }

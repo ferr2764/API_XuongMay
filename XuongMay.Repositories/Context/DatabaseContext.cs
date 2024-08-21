@@ -34,6 +34,20 @@ namespace XuongMay.Repositories
             {
                 entity.HasKey(e => e.AccountId).HasName("PK_Accounts");
                 entity.Property(e => e.AccountId).HasDefaultValueSql("NEWID()");
+
+                // Configuring the relationship for OrderAccounts (Orders created by the Account)
+                entity.HasMany(a => a.OrderAccounts)
+                      .WithOne(o => o.Account)
+                      .HasForeignKey(o => o.AccountId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("FK_Orders_Account");
+
+                // Configuring the relationship for OrderAssignedAccounts (Orders assigned to the Account)
+                entity.HasMany(a => a.OrderAssignedAccounts)
+                      .WithOne(o => o.AssignedAccount)
+                      .HasForeignKey(o => o.AssignedAccountId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .HasConstraintName("FK_Orders_AssignedAccount");
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -65,6 +79,7 @@ namespace XuongMay.Repositories
 
             OnModelCreatingPartial(modelBuilder);
         }
+
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }

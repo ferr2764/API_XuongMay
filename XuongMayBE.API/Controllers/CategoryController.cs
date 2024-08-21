@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.CategoryModelViews;
+using System;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -17,27 +17,16 @@ namespace XuongMayBE.API.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/category
-        /// <summary>
-        /// Get all categories.
-        /// </summary>
-        /// <returns>A list of all categories.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllCategories(int page = 1, int pageSize = 5)
         {
-            var categories = await _categoryService.GetCategoriesByPageAsync(page, pageSize);
+            var categories = await _categoryService.GetPaginatedCategoriesAsync(page, pageSize);
             return Ok(categories);
         }
 
-        // GET: api/category/{id}
-        /// <summary>
-        /// Get a category by ID.
-        /// </summary>
-        /// <param name="id">The ID of the category.</param>
-        /// <returns>The category details.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategory(string id)
+        public async Task<IActionResult> GetCategory(Guid id)
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category == null)
@@ -47,12 +36,6 @@ namespace XuongMayBE.API.Controllers
             return Ok(category);
         }
 
-        // POST: api/category
-        /// <summary>
-        /// Create a new category.
-        /// </summary>
-        /// <param name="category">The category details to create.</param>
-        /// <returns>The created category details.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryModelView category)
@@ -65,7 +48,7 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(category);
-                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.Id }, createdCategory);
+                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
             }
             catch (Exception ex)
             {
@@ -73,23 +56,10 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-        // PUT: api/category/{id}
-        /// <summary>
-        /// Update an existing category.
-        /// </summary>
-        /// <param name="id">The ID of the category to update.</param>
-        /// <param name="category">The updated category details.</param>
-        /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(string id, [FromBody] UpdateCategoryModelView category)
+        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryModelView category)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return BadRequest("Invalid ID format.");
-            }
-
-
             try
             {
                 var updatedCategory = await _categoryService.UpdateCategoryAsync(id, category);
@@ -106,21 +76,10 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-        // PATCH: api/category/{id}
-        /// <summary>
-        /// Mark a category as deleted (e.g., by setting its status to "Unavailable").
-        /// </summary>
-        /// <param name="id">The ID of the category to "delete".</param>
-        /// <returns>No content if the operation is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPatch("delete/{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteCategory(Guid id)
         {
-            if (!ObjectId.TryParse(id, out _))
-            {
-                return BadRequest("Invalid ID format.");
-            }
-
             try
             {
                 var isUnavailable = await _categoryService.DeleteCategoryAsync(id);

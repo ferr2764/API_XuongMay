@@ -1,11 +1,9 @@
-﻿
-
-namespace XuongMay.ModelViews.OrderDetailModelView
+﻿namespace XuongMay.ModelViews.OrderDetailModelView
 {
     public class CreateOrderDetailModelView
     {
-        public required string OrderId { get; set; }
-        public required string ProductId { get; set; }
+        public required Guid OrderId { get; set; }  // Changed to Guid
+        public required Guid ProductId { get; set; }  // Changed to Guid
         public required int NumberOfProds { get; set; }
     }
 }

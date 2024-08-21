@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Contract.Repositories.Entity;
 
@@ -7,38 +9,49 @@ namespace XuongMay.Repositories.UOW
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly IMongoCollection<Order> _orders;
+        private readonly DbContext _context;
+        private readonly DbSet<Order> _orders;
 
-        public OrderRepository(IMongoDatabase database)
+        public OrderRepository(DbContext context)
         {
-            _orders = database.GetCollection<Order>("Orders");
+            _context = context;
+            _orders = context.Set<Order>();
         }
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _orders.Find(_ => true).ToListAsync();
+            return await _orders.ToListAsync();
         }
 
-        public async Task<Order> GetByIdAsync(ObjectId id)
+        public async Task<Order> GetByIdAsync(Guid id)
         {
-            return await _orders.Find(order => order.Id == id).FirstOrDefaultAsync();
+            return await _orders.FindAsync(id);
         }
 
         public async Task CreateAsync(Order order)
         {
-            await _orders.InsertOneAsync(order);
+            await _orders.AddAsync(order);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(ObjectId id, Order order)
+        public async Task<bool> UpdateAsync(Guid id, Order order)
         {
-            var result = await _orders.ReplaceOneAsync(o => o.Id == id, order);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            var existingOrder = await _orders.FindAsync(id);
+            if (existingOrder == null) return false;
+
+            _context.Entry(existingOrder).CurrentValues.SetValues(order);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<bool> DeleteAsync(ObjectId id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var result = await _orders.DeleteOneAsync(o => o.Id == id);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            var order = await _orders.FindAsync(id);
+            if (order == null) return false;
+
+            _orders.Remove(order);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

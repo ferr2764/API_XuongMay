@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Core;
 
@@ -8,53 +11,58 @@ namespace XuongMay.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly IMongoCollection<T> _collection;
+        private readonly DbContext _context;
+        private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(IMongoDatabase database)
+        public GenericRepository(DbContext context)
         {
-            _collection = database.GetCollection<T>(typeof(T).Name);
+            _context = context;
+            _dbSet = context.Set<T>();
         }
 
-        public IQueryable<T> Entities => _collection.AsQueryable();
+        public IQueryable<T> Entities => _dbSet.AsQueryable();
 
         public IEnumerable<T> GetAll()
         {
-            return _collection.Find(_ => true).ToList();
+            return _dbSet.ToList();
         }
 
-        public T? GetById(ObjectId id)
+        public T? GetById(Guid id)
         {
-            return _collection.Find(Builders<T>.Filter.Eq("_id", id)).FirstOrDefault();
+            return _dbSet.Find(id);
         }
 
         public void Insert(T obj)
         {
-            _collection.InsertOne(obj);
+            _dbSet.Add(obj);
+            Save();
         }
 
         public void InsertRange(IList<T> obj)
         {
-            _collection.InsertMany(obj);
+            _dbSet.AddRange(obj);
+            Save();
         }
 
         public void Update(T obj)
         {
-            var objectId = (ObjectId)obj.GetType().GetProperty("Id")?.GetValue(obj, null);
-            _collection.ReplaceOne(Builders<T>.Filter.Eq("_id", objectId), obj);
+            _dbSet.Update(obj);
+            Save();
         }
 
-        public void Delete(ObjectId id)
+        public void Delete(Guid id)
         {
-            _collection.DeleteOne(Builders<T>.Filter.Eq("_id", id));
-        }
-
-        public void Save()
-        {
+            var entity = _dbSet.Find(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                Save();
+            }
         }
 
         public async Task<IList<T>> GetAllAsync()
         {
-            return await _collection.Find(_ => true).ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
         public async Task<BasePaginatedList<T>> GetPaginatedAsync(IQueryable<T> query, int pageIndex, int pageSize)
@@ -64,41 +72,52 @@ namespace XuongMay.Repositories
             return new BasePaginatedList<T>(items, count, pageIndex, pageSize);
         }
 
-        public async Task<T?> GetByIdAsync(ObjectId id)
+        public async Task<T?> GetByIdAsync(Guid id)
         {
-            return await _collection.Find(Builders<T>.Filter.Eq("_id", id)).FirstOrDefaultAsync();
+            return await _dbSet.FindAsync(id);
         }
 
         public async Task InsertAsync(T obj)
         {
-            await _collection.InsertOneAsync(obj);
+            await _dbSet.AddAsync(obj);
+            await SaveAsync();
         }
 
         public async Task InsertRangeAsync(IList<T> obj)
         {
-            await _collection.InsertManyAsync(obj);
+            await _dbSet.AddRangeAsync(obj);
+            await SaveAsync();
         }
 
         public async Task UpdateAsync(T obj)
         {
-            var objectId = (ObjectId)obj.GetType().GetProperty("Id")?.GetValue(obj, null);
-            await _collection.ReplaceOneAsync(Builders<T>.Filter.Eq("_id", objectId), obj);
+            _dbSet.Update(obj);
+            await SaveAsync();
         }
 
-        public async Task DeleteAsync(ObjectId id)
+        public async Task DeleteAsync(Guid id)
         {
-            await _collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", id));
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                await SaveAsync();
+            }
         }
-   
+
+        public async Task<IEnumerable<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _dbSet.Where(filter).ToListAsync();
+        }
+
+        public void Save()
+        {
+            _context.SaveChanges();
+        }
+
         public async Task SaveAsync()
         {
-            // MongoDB operations are immediately committed; no-op here.
-            await Task.CompletedTask;
-        }
-
-        public async Task<IEnumerable<T>> GetAllByFilterAsync(FilterDefinition<T> filter)
-        {
-            return await _collection.Find(filter).ToListAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

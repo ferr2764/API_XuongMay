@@ -16,7 +16,6 @@ namespace XuongMayBE.API
         public static void AddConfig(this IServiceCollection services, IConfiguration configuration)
         {
             services.ConfigRoute();
-            services.AddMongoDb(configuration);
             services.AddInfrastructure(configuration);
             services.AddJwtAuthentication(configuration);
             services.AddSwaggerWithJwtAuth();
@@ -33,7 +32,8 @@ namespace XuongMayBE.API
         {
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("MyCnn"));
+                options.UseLazyLoadingProxies()
+                       .UseSqlServer(configuration.GetConnectionString("MyCnn"));
             });
         }
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -95,6 +95,8 @@ namespace XuongMayBE.API
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
 

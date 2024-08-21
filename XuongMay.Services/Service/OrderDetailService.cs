@@ -1,5 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -20,60 +23,33 @@ namespace XuongMay.Services.Service
         {
             var repository = _unitOfWork.GetRepository<OrderDetail>();
             var orderDetails = await repository.GetAllAsync();
-
-            // Apply pagination using Skip and Take
             var pagedOrderDetails = orderDetails
-                                    .Skip((pageNumber - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .ToList();
-
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
             return pagedOrderDetails;
         }
 
-
-        public async Task<OrderDetail> GetOrderDetailByIdAsync(string id)
+        public async Task<OrderDetail> GetOrderDetailByIdAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            return await repository.GetByIdAsync(objectId);
+            return await repository.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(string orderId)
+        public async Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(Guid orderId)
         {
-            if (!ObjectId.TryParse(orderId, out var objectId))
-            {
-                return Enumerable.Empty<OrderDetail>();
-            }
-
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var allOrderDetails = await repository.GetAllAsync();
-
-            return allOrderDetails.Where(od => od.OrderId == objectId);
+            return await repository.GetAllByFilterAsync(od => od.OrderId == orderId);
         }
 
-
-        public async Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetailModel)
+        public async Task<OrderDetail> CreateOrderDetailAsync(CreateOrderDetailModelView orderDetailModelView)
         {
-
-            // Fetch the product from the repository
-            var productRepository = _unitOfWork.GetRepository<Product>();
-            var product = await productRepository.GetByIdAsync(ObjectId.Parse(orderDetailModel.ProductId));
-
-            // Validate the product status
-            if (product == null || product.Status != "Available")
+            var orderDetail = new OrderDetail
             {
-                throw new Exception("Cannot create an order detail for a product that is unavailable.");
-            }
-            OrderDetail orderDetail = new OrderDetail
-            {
-                OrderId = ObjectId.Parse(orderDetailModel.OrderId),
-                ProductId = ObjectId.Parse(orderDetailModel.ProductId),
-                Status = "Created",
-                NumberOfProds = orderDetailModel.NumberOfProds
+                DetailId = Guid.NewGuid(),
+                OrderId = orderDetailModelView.OrderId,
+                ProductId = orderDetailModelView.ProductId,
+                NumberOfProds = orderDetailModelView.NumberOfProds
             };
 
             var repository = _unitOfWork.GetRepository<OrderDetail>();
@@ -81,95 +57,66 @@ namespace XuongMay.Services.Service
             return orderDetail;
         }
 
-        public async Task<OrderDetail> UpdateOrderDetailAsync(string id, UpdateOrderDetailModelView orderDetailModel)
+        public async Task<OrderDetail> UpdateOrderDetailAsync(Guid id, UpdateOrderDetailModelView orderDetailModelView)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var existingOrderDetail = await repository.GetByIdAsync(objectId);
-            if (existingOrderDetail == null)
-            {
-                return null;
-            }
+            var existingOrderDetail = await repository.GetByIdAsync(id);
+            if (existingOrderDetail == null) return null;
 
-            // Fetch and validate the new product from the repository
-            if (!ObjectId.TryParse(orderDetailModel.ProductId, out var newProductId))
-            {
-                throw new Exception("Invalid Product ID.");
-            }
-
-            var productRepository = _unitOfWork.GetRepository<Product>();
-            var newProduct = await productRepository.GetByIdAsync(newProductId);
-
-            if (newProduct == null || newProduct.Status != "Available")
-            {
-                throw new Exception("Cannot assign an unavailable product to the order detail.");
-            }
-
-            // Update the relevant fields
-            existingOrderDetail.ProductId = newProductId;
-            existingOrderDetail.Status = orderDetailModel.Status;
-            existingOrderDetail.NumberOfProds = orderDetailModel.NumberOfProds;
+            existingOrderDetail.NumberOfProds = orderDetailModelView.NumberOfProds;
+            existingOrderDetail.ProductId = orderDetailModelView.ProductId;
+            existingOrderDetail.Status = orderDetailModelView.Status;
 
             await repository.UpdateAsync(existingOrderDetail);
-
             return existingOrderDetail;
         }
 
-        public async Task<bool> DeleteOrderDetailAsync(string id)
+        public async Task<bool> DeleteOrderDetailAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return false;
-
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var existingOrderDetail = await repository.GetByIdAsync(objectId);
-            if (existingOrderDetail == null)
-                return false;
+            var existingOrderDetail = await repository.GetByIdAsync(id);
+            if (existingOrderDetail == null) return false;
 
-            // Update trạng thái thành Unavailable
-            existingOrderDetail.Status = "Unavailable";
-
-            await repository.UpdateAsync(existingOrderDetail);
-
+            await repository.DeleteAsync(id);
             return true;
         }
 
-        public async Task<OrderDetail> CancelOrderDetailAsync(string id)
+        public async Task<OrderDetail> CancelOrderDetailAsync(Guid id)
         {
-            OrderDetail orderDetail = new();
-            orderDetail.Id = ObjectId.Parse(id);
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var existingOrderDetail = await repository.GetByIdAsync(orderDetail.Id);
-            if (existingOrderDetail == null)
-                return null;
-            existingOrderDetail.Status = "Canceled";
+            var existingOrderDetail = await repository.GetByIdAsync(id);
+            if (existingOrderDetail == null) return null;
 
+            // Set the status to "Cancelled" or similar logic
+            existingOrderDetail.Status = "Cancelled";
             await repository.UpdateAsync(existingOrderDetail);
 
             return existingOrderDetail;
         }
 
-        public async Task<OrderDetail> MoveToNextStatusAsync(string id)
+        public async Task<OrderDetail> MoveToNextStatusAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return null;
-
             var repository = _unitOfWork.GetRepository<OrderDetail>();
-            var orderDetail = await repository.GetByIdAsync(objectId);
-            if (orderDetail == null)
-                return null;
-            if (orderDetail.Status.Equals("Created"))
+            var existingOrderDetail = await repository.GetByIdAsync(id);
+            if (existingOrderDetail == null) return null;
+
+            // Implement logic to move to the next status
+            switch (existingOrderDetail.Status)
             {
-                orderDetail.Status = "Completed";
+                case "Pending":
+                    existingOrderDetail.Status = "InProgress";
+                    break;
+                case "InProgress":
+                    existingOrderDetail.Status = "Completed";
+                    break;
+                case "Completed":
+                    return null; // Cannot move further
+                default:
+                    return null;
             }
-            else return null;
+            await repository.UpdateAsync(existingOrderDetail);
 
-            await repository.UpdateAsync(orderDetail);
-
-            return orderDetail;
+            return existingOrderDetail;
         }
     }
 }

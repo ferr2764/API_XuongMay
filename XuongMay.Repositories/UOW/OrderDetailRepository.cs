@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Contract.Repositories.Entity;
 
@@ -7,44 +9,54 @@ namespace XuongMay.Repositories.UOW
 {
     public class OrderDetailRepository : IOrderDetailRepository
     {
-        private readonly IMongoCollection<OrderDetail> _orderDetails;
+        private readonly DbContext _context;
+        private readonly DbSet<OrderDetail> _orderDetails;
 
-        public OrderDetailRepository(IMongoDatabase database)
+        public OrderDetailRepository(DbContext context)
         {
-            _orderDetails = database.GetCollection<OrderDetail>("OrderDetails");
+            _context = context;
+            _orderDetails = context.Set<OrderDetail>();
         }
 
         public async Task<IEnumerable<OrderDetail>> GetAllAsync()
         {
-            return await _orderDetails.Find(_ => true).ToListAsync();
+            return await _orderDetails.ToListAsync();
         }
 
-        public async Task<OrderDetail> GetByIdAsync(ObjectId id)
+        public async Task<OrderDetail> GetByIdAsync(Guid id)
         {
-            return await _orderDetails.Find(orderDetail => orderDetail.Id == id).FirstOrDefaultAsync();
+            return await _orderDetails.FindAsync(id);
         }
 
         public async Task CreateAsync(OrderDetail orderDetail)
         {
-            await _orderDetails.InsertOneAsync(orderDetail);
+            await _orderDetails.AddAsync(orderDetail);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(ObjectId id, OrderDetail orderDetail)
+        public async Task<bool> UpdateAsync(Guid id, OrderDetail orderDetail)
         {
-            var result = await _orderDetails.ReplaceOneAsync(od => od.Id == id, orderDetail);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            var existingOrderDetail = await _orderDetails.FindAsync(id);
+            if (existingOrderDetail == null) return false;
+
+            _context.Entry(existingOrderDetail).CurrentValues.SetValues(orderDetail);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<bool> DeleteAsync(ObjectId id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var result = await _orderDetails.DeleteOneAsync(od => od.Id == id);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            var orderDetail = await _orderDetails.FindAsync(id);
+            if (orderDetail == null) return false;
+
+            _orderDetails.Remove(orderDetail);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<IEnumerable<OrderDetail>> GetOrderDetailByOrderIdAsync(string orderId)
+        public async Task<IEnumerable<OrderDetail>> GetOrderDetailByOrderIdAsync(Guid orderId)
         {
-            var objectId = ObjectId.Parse(orderId);
-            return await _orderDetails.Find(od => od.OrderId == objectId).ToListAsync();
+            return await _orderDetails.Where(od => od.OrderId == orderId).ToListAsync();
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Services.Interface;
-using MongoDB.Bson;
 using XuongMay.ModelViews.ProductModelViews;
 using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Threading.Tasks;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -17,7 +18,6 @@ namespace XuongMayBE.API.Controllers
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
-
         // GET api/product
         /// <summary>
         /// Get all products.
@@ -31,7 +31,6 @@ namespace XuongMayBE.API.Controllers
             return Ok(pagedProducts);
         }
 
-
         // GET api/product/{id}
         /// <summary>
         /// Get a product by ID.
@@ -39,12 +38,11 @@ namespace XuongMayBE.API.Controllers
         /// <param name="id">The ID of the product.</param>
         /// <returns>The product details.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduct(string id)
+        public async Task<IActionResult> GetProduct(Guid id)
         {
             var product = await _productService.GetProductByIdAsync(id);
             return product != null ? Ok(product) : NotFound();
         }
-
 
         // CREATE api/product
         /// <summary>
@@ -65,14 +63,13 @@ namespace XuongMayBE.API.Controllers
             try
             {
                 var createdProduct = await _productService.CreateProductAsync(product);
-                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id.ToString() }, createdProduct);
+                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-
 
         // UPDATE api/product/{id}
         /// <summary>
@@ -84,11 +81,11 @@ namespace XuongMayBE.API.Controllers
         /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(string id, [FromBody] UpdateProductModelView productModel)
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductModelView productModel)
         {
-            if (productModel == null || !ObjectId.TryParse(id, out var objectId))
+            if (productModel == null)
             {
-                return BadRequest("Invalid product data or ID format.");
+                return BadRequest("Invalid product data.");
             }
 
             try
@@ -111,13 +108,8 @@ namespace XuongMayBE.API.Controllers
         /// <returns>No content if the update is successful.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPatch("delete/{id}")]
-        public async Task<IActionResult> DeleteProduct(string id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            if (!ObjectId.TryParse(id, out _))
-            {
-                return BadRequest("Invalid ID format.");
-            }
-
             try
             {
                 var isUnavailable = await _productService.DeleteProductAsync(id);

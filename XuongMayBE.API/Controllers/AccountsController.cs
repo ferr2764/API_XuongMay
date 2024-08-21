@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.AuthModelViews;
+using System;
 
 namespace XuongMayBE.API.Controllers
 {
@@ -16,14 +17,8 @@ namespace XuongMayBE.API.Controllers
             _accountService = accountService;
         }
 
-        // GET api/account/{id}
-        /// <summary>
-        /// Get an account by ID.
-        /// </summary>
-        /// <param name="id">The ID of the account.</param>
-        /// <returns>The account details.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccountById(string id)
+        public async Task<IActionResult> GetAccountById(Guid id)
         {
             var account = await _accountService.GetAccountByIdAsync(id);
             if (account == null)
@@ -33,13 +28,6 @@ namespace XuongMayBE.API.Controllers
             return Ok(account);
         }
 
-        // GET api/account/role/{role}
-        /// <summary>
-        /// Get accounts by role.
-        /// Only accessible by Manager.
-        /// </summary>
-        /// <param name="role">The role of the accounts to retrieve.</param>
-        /// <returns>A list of accounts with the specified role.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet("role/{role}")]
         public async Task<IActionResult> GetAccountsByRole(string role)
@@ -48,12 +36,6 @@ namespace XuongMayBE.API.Controllers
             return Ok(accounts);
         }
 
-        // GET api/account
-        /// <summary>
-        /// Get all accounts.
-        /// Only accessible by Manager.
-        /// </summary>
-        /// <returns>A list of all accounts.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllAccounts(int pageNumber = 1, int pageSize = 5)
@@ -62,19 +44,8 @@ namespace XuongMayBE.API.Controllers
             return Ok(accounts);
         }
 
-
-
-        // PUT api/account/{id}
-
-        /// <summary>
-        /// Update an account by ID.
-        /// </summary>
-        /// <param name="id">The ID of the account to update.</param>
-        /// <param name="updatedAccount">The updated account details.</param>
-        /// <returns>No content if the update is successful.</returns>
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAccount(string id, [FromBody] UpdateAccountModelView updatedAccount)
+        public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] UpdateAccountModelView updatedAccount)
         {
             if (updatedAccount == null)
             {
@@ -92,30 +63,23 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-  // PUT api/account/{id}/delete
-  [Authorize(Roles = "Manager")]
-  [HttpPut("{id}/delete")]
-  public async Task<IActionResult> DeleteAccount(string id)
-  {
-      try
-      {
-          await _accountService.DeleteAccountAsync(id);
-          return NoContent();
-      }
-      catch (Exception ex)
-      {
-          return NotFound(new { Message = ex.Message });
-      }
-  }
-        // PATCH api/account/{id}/role
-        /// <summary>
-        /// Update the role of an account.
-        /// </summary>
-        /// <param name="id">The ID of the account to update.</param>
-        /// <param name="role">The new role to assign to the account.</param>
-        /// <returns>No content if the role update is successful.</returns>
+        [Authorize(Roles = "Manager")]
+        [HttpPut("{id}/delete")]
+        public async Task<IActionResult> DeleteAccount(Guid id)
+        {
+            try
+            {
+                await _accountService.DeleteAccountAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+        }
+
         [HttpPatch("{id}/role")]
-        public async Task<IActionResult> UpdateAccountRole(string id, [FromBody] string role)
+        public async Task<IActionResult> UpdateAccountRole(Guid id, [FromBody] string role)
         {
             if (string.IsNullOrEmpty(role))
             {

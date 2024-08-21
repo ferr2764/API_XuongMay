@@ -1,26 +1,16 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
+﻿using System;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class OrderDetail
+    public partial class OrderDetail
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
-
-        [BsonElement("numberOfProds")]
+        public Guid DetailId { get; set; } = Guid.NewGuid();
         public int NumberOfProds { get; set; }
+        public string Status { get; set; } = null!;
+        public Guid OrderId { get; set; }
+        public Guid ProductId { get; set; }
 
-        [BsonElement("status")]
-        public string Status { get; set; }
-
-        [BsonElement("productId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId ProductId { get; set; }
-
-        [BsonElement("orderId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId OrderId { get; set; }
+        public virtual Order Order { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
     }
 }

@@ -1,6 +1,10 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
+using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.ProductModelViews;
 
@@ -8,110 +12,62 @@ namespace XuongMay.Services.Service
 {
     public class ProductService : IProductService
     {
+        private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IUnitOfWork unitOfWork)
+        public ProductService(IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
+            _productRepository = productRepository;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Product>> GetPaginatedProductsAsync(int pageNumber, int pageSize)
         {
-            var repository = _unitOfWork.GetRepository<Product>();
-            var products = await repository.GetAllAsync();
-
+            var products = await _productRepository.GetAllAsync();
             var pagedProducts = products
-                                .Skip((pageNumber - 1) * pageSize)
-                                .Take(pageSize)
-                                .ToList();
-
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
             return pagedProducts;
         }
 
-
-        public async Task<Product> GetProductByIdAsync(string id)
+        public async Task<Product> GetProductByIdAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
-            var repository = _unitOfWork.GetRepository<Product>();
-            return await repository.GetByIdAsync(objectId);
+            return await _productRepository.GetByIdAsync(id);
         }
 
-        public async Task<Product> CreateProductAsync(CreateProductModelView createProduct)
+        public async Task<Product> CreateProductAsync(CreateProductModelView productModelView)
         {
-            // Fetch the category from the repository
-            var categoryRepository = _unitOfWork.GetRepository<Category>();
-            var category = await categoryRepository.GetByIdAsync(ObjectId.Parse(createProduct.CategoryId));
-
-            if (category == null)
+            var product = new Product
             {
-                throw new Exception("Category not found.");
-            }
-
-            if (category.CategoryStatus == "Unavailable")
-            {
-                throw new Exception("Cannot create a product in an unavailable category.");
-            }
-
-            Product product = new Product
-            {
-                ProductName = createProduct.ProductName,
-                ProductSize = createProduct.ProductSize,
-                Status = "Available",
-                CategoryId = ObjectId.Parse(createProduct.CategoryId)
+                ProductId = Guid.NewGuid(),
+                ProductName = productModelView.ProductName,
+                ProductSize = productModelView.ProductSize,
+                CategoryId = productModelView.CategoryId
             };
-            var repository = _unitOfWork.GetRepository<Product>();
-            await repository.InsertAsync(product);
+
+            await _productRepository.CreateAsync(product);
             return product;
         }
 
-        public async Task<Product> UpdateProductAsync(string id, UpdateProductModelView product)
+        public async Task<Product> UpdateProductAsync(Guid id, UpdateProductModelView productModelView)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
+            var existingProduct = await _productRepository.GetByIdAsync(id);
+            if (existingProduct == null) return null;
 
-            var repository = _unitOfWork.GetRepository<Product>();
-            var existingProduct = await repository.GetByIdAsync(objectId);
-            if (existingProduct == null)
-            {
-                return null;
-            }
+            existingProduct.ProductName = productModelView.ProductName;
+            existingProduct.ProductSize = productModelView.ProductSize;
 
-            // Update các thuộc tính cần thiết
-            existingProduct.ProductName = product.ProductName;
-            existingProduct.ProductSize = product.ProductSize;
-            existingProduct.Status = product.Status;
-            existingProduct.CategoryId = ObjectId.Parse(product.CategoryId);
-            await repository.UpdateAsync(existingProduct);
-
-
+            await _productRepository.UpdateAsync(id, existingProduct);
             return existingProduct;
         }
 
-        public async Task<bool> DeleteProductAsync(string id)
+        public async Task<bool> DeleteProductAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return false;
-            }
+            var existingProduct = await _productRepository.GetByIdAsync(id);
+            if (existingProduct == null) return false;
 
-            var repository = _unitOfWork.GetRepository<Product>();
-            var existingProduct = await repository.GetByIdAsync(objectId);
-            if (existingProduct == null)
-            {
-                return false;
-            }
-
-            // Update trạng thái thành Unavailable
-            existingProduct.Status = "Unavailable";
-            await repository.UpdateAsync(existingProduct);
-
-
+            await _productRepository.DeleteAsync(id);
             return true;
         }
     }

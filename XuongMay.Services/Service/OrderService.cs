@@ -1,5 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -29,23 +32,17 @@ namespace XuongMay.Services.Service
             return pagedOrders;
         }
 
-
-        public async Task<Order> GetOrderByIdAsync(string id)
+        public async Task<Order> GetOrderByIdAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<Order>();
-            return await repository.GetByIdAsync(objectId);
+            return await repository.GetByIdAsync(id);
         }
 
         public async Task<Order> CreateOrderAsync(CreateOrderModelView orderViewModel)
         {
-            Order order = new Order
+            var order = new Order
             {
-                AccountId = ObjectId.Parse(orderViewModel.AccountId),
+                AccountId = orderViewModel.AccountId,
                 Deadline = orderViewModel.Deadline,
                 Status = "Created",
                 CreatedDate = DateTime.UtcNow
@@ -56,15 +53,10 @@ namespace XuongMay.Services.Service
             return order;
         }
 
-        public async Task<Order> UpdateOrderAsync(string id, UpdateOrderModelView order)
+        public async Task<Order> UpdateOrderAsync(Guid id, UpdateOrderModelView order)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<Order>();
-            var existingOrder = await repository.GetByIdAsync(objectId);
+            var existingOrder = await repository.GetByIdAsync(id);
             if (existingOrder == null)
             {
                 return null;
@@ -73,31 +65,25 @@ namespace XuongMay.Services.Service
             existingOrder.Status = order.Status;
             existingOrder.Deadline = order.Deadline;
             existingOrder.FinishDate = order.FinishDate;
-            existingOrder.AssignedAccountId = string.IsNullOrEmpty(order.AssignedAccountId)
+            existingOrder.AssignedAccountId = string.IsNullOrEmpty(order.AssignedAccountId.ToString())
                                               ? existingOrder.AssignedAccountId
-                                              : ObjectId.Parse(order.AssignedAccountId);
-
+                                              : order.AssignedAccountId;
 
             await repository.UpdateAsync(existingOrder);
 
             return existingOrder;
         }
 
-        public async Task<bool> DeleteOrderAsync(string id)
+        public async Task<bool> DeleteOrderAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return false;
-            }
-
             var repository = _unitOfWork.GetRepository<Order>();
-            var existingOrder = await repository.GetByIdAsync(objectId);
+            var existingOrder = await repository.GetByIdAsync(id);
             if (existingOrder == null)
             {
                 return false;
             }
 
-            // Update trạng thái thành Unavailable
+            // Update status to Unavailable
             existingOrder.Status = "Unavailable";
 
             await repository.UpdateAsync(existingOrder);
@@ -105,21 +91,16 @@ namespace XuongMay.Services.Service
             return true;
         }
 
-        public async Task<Order> MoveToNextStatusAsync(string id)
+        public async Task<Order> MoveToNextStatusAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<Order>();
-            var order = await repository.GetByIdAsync(objectId);
+            var order = await repository.GetByIdAsync(id);
             if (order == null)
             {
                 return null;
             }
 
-            // Chuyển trạng thái theo thứ tự
+            // Change status in order
             switch (order.Status)
             {
                 case "Created":
@@ -130,67 +111,53 @@ namespace XuongMay.Services.Service
                     order.FinishDate = DateTime.UtcNow;
                     break;
                 case "Completed":
-                    return null; // Không thể chuyển trạng thái từ Completed
+                    return null; // Cannot move from Completed
                 default:
                     return null;
             }
             await repository.UpdateAsync(order);
 
-
             return order;
         }
 
-        public async Task<bool> CancelOrderAsync(string id)
+        public async Task<bool> CancelOrderAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return false;
-            }
-
             var orderRepository = _unitOfWork.GetRepository<Order>();
-            var order = await orderRepository.GetByIdAsync(objectId);
+            var order = await orderRepository.GetByIdAsync(id);
             if (order == null || order.Status == "Completed" || order.Status == "Unavailable" || order.Status == "Cancelled")
             {
                 return false;
             }
 
             order.Status = "Cancelled";
-            orderRepository.Update(order);
+            await orderRepository.UpdateAsync(order);
 
             var orderDetailRepository = _unitOfWork.GetRepository<OrderDetail>();
-            var filter = Builders<OrderDetail>.Filter.Eq(od => od.OrderId, objectId);
-            var orderDetails = await orderDetailRepository.GetAllByFilterAsync(filter);
+            var orderDetails = await orderDetailRepository.GetAllByFilterAsync(od => od.OrderId == id);
 
             foreach (var orderDetail in orderDetails)
             {
                 if (orderDetail.Status != "Completed")
                 {
-                    orderDetail.Status = "Canceled";
-                    orderDetailRepository.Update(orderDetail);
+                    orderDetail.Status = "Cancelled";
+                    await orderDetailRepository.UpdateAsync(orderDetail);
                 }
             }
-
 
             return true;
         }
 
-
-        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, string id)
+        public async Task<Order> AssignOrderAsync(AssignOrderModelView assignOrderModelView, Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
             var repository = _unitOfWork.GetRepository<Order>();
-            var order = await repository.GetByIdAsync(objectId);
+            var order = await repository.GetByIdAsync(id);
             if (order == null)
             {
                 return null;
             }
 
             var accountRepository = _unitOfWork.GetRepository<Account>();
-            var account = await accountRepository.GetByIdAsync(ObjectId.Parse(assignOrderModelView.AccountId));
+            var account = await accountRepository.GetByIdAsync(assignOrderModelView.AccountId);
 
             if (account == null || account.Status == "Unavailable")
             {
@@ -198,13 +165,12 @@ namespace XuongMay.Services.Service
             }
 
             // Check if the account has the role "Manager"
-
             if (account.Role == "Manager")
             {
                 throw new Exception("Cannot assign order to an account with the role 'Manager'.");
             }
 
-            order.AssignedAccountId = ObjectId.Parse(assignOrderModelView.AccountId);
+            order.AssignedAccountId = assignOrderModelView.AccountId;
             order.Status = "Assigned";
             await repository.UpdateAsync(order);
             return order;

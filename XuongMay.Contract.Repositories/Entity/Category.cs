@@ -1,20 +1,15 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using System;
+using System.Collections.Generic;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Category
+    public partial class Category
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public Guid CategoryId { get; set; } = Guid.NewGuid();
+        public string CategoryName { get; set; } = null!;
+        public string CategoryDescription { get; set; } = null!;
+        public string CategoryStatus { get; set; } = null!;
 
-        [BsonElement("categoryName")]
-        public string CategoryName { get; set; }
-
-        [BsonElement("categoryDescription")]
-        public string CategoryDescription { get; set; }
-
-        [BsonElement("categoryStatus")]
-        public string CategoryStatus { get; set; }
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

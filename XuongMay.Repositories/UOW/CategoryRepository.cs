@@ -1,44 +1,57 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using XuongMay.Contract.Repositories.IUOW;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Repositories.Interface;
 
 namespace XuongMay.Repositories.UOW
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly IMongoCollection<Category> _categories;
+        private readonly DatabaseContext _context;
+        private readonly DbSet<Category> _categories;
 
-        public CategoryRepository(IMongoDatabase database)
+        public CategoryRepository(DatabaseContext context)
         {
-            _categories = database.GetCollection<Category>("Categories");
+            _context = context;
+            _categories = context.Set<Category>();
         }
 
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return await _categories.Find(_ => true).ToListAsync();
+            return await _categories.ToListAsync();
         }
 
-        public async Task<Category> GetByIdAsync(ObjectId id)
+        public async Task<Category> GetByIdAsync(Guid id)
         {
-            return await _categories.Find(category => category.Id == id).FirstOrDefaultAsync();
+            return await _categories.FindAsync(id);
         }
 
-        public async Task CreateAsync(Category category)
+        public async Task InsertAsync(Category category)
         {
-            await _categories.InsertOneAsync(category);
+            await _categories.AddAsync(category);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(ObjectId id, Category category)
+        public async Task<bool> UpdateAsync(Guid id, Category category)
         {
-            var result = await _categories.ReplaceOneAsync(c => c.Id == id, category);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            var existingCategory = await _categories.FindAsync(id);
+            if (existingCategory == null) return false;
+
+            _context.Entry(existingCategory).CurrentValues.SetValues(category);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<bool> DeleteAsync(ObjectId id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var result = await _categories.DeleteOneAsync(c => c.Id == id);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            var category = await _categories.FindAsync(id);
+            if (category == null) return false;
+
+            _categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

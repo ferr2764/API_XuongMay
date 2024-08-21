@@ -1,9 +1,7 @@
-﻿
-
-namespace XuongMay.ModelViews.OrderModelViews
+﻿namespace XuongMay.ModelViews.OrderModelViews
 {
     public class AssignOrderModelView
     {
-        public required string AccountId { get; set; }
+        public required Guid AccountId { get; set; }  // Changed to Guid
     }
 }

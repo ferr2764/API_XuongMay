@@ -1,68 +1,61 @@
-﻿using MongoDB.Driver;
-using XuongMay.Contract.Repositories.Entity;
-using XuongMay.Contract.Services.Interface;
-using Microsoft.IdentityModel.Tokens;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using XuongMay.Contract.Repositories.Entity;
+using XuongMay.Contract.Repositories.Interface;
+using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.AuthModelViews;
-using MongoDB.Bson;
 
 namespace XuongMay.Services.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly IMongoCollection<Account> _accounts;
+        private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IMongoDatabase database, IConfiguration configuration)
+        public AuthService(IAccountRepository accountRepository, IConfiguration configuration)
         {
-            _accounts = database.GetCollection<Account>("Account");
+            _accountRepository = accountRepository;
             _configuration = configuration;
         }
 
         public async Task RegisterUserAsync(RegisterModelView registerModel)
         {
-            // Check if the user already exists
-            var existingUser = await _accounts.Find(a => a.Username == registerModel.Username).FirstOrDefaultAsync();
-            if (existingUser != null)
-            {
-                throw new Exception("User already exists");
-            }
-            // Create a new Account entity from the RegisterModelView
+            var existingUser = await _accountRepository.GetByPredicateAsync(a => a.Username == registerModel.Username);
+            if (existingUser != null) throw new Exception("User already exists");
+
             var newAccount = new Account
             {
-                Id = ObjectId.GenerateNewId(),
+                AccountId = Guid.NewGuid(),
                 Name = registerModel.Name,
                 Username = registerModel.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerModel.Password),
-                Role = "Employee", 
+                Role = "Employee",
                 Salary = 1000,
                 Status = "Available"
             };
 
-            // Insert the user into the MongoDB collection
-            await _accounts.InsertOneAsync(newAccount);
+            await _accountRepository.InsertAsync(newAccount);
         }
 
         public async Task<(string Token, Account User)> AuthenticateUserAsync(string username, string password)
         {
-            var user = await _accounts.Find(a => a.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+            var user = await _accountRepository.GetByPredicateAsync(a => a.Username.ToLower() == username.ToLower());
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
-            {
                 throw new Exception("Invalid username or password");
-            }
 
-            // Generate JWT
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -71,9 +64,7 @@ namespace XuongMay.Services.Service
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = tokenHandler.WriteToken(token);
-
-            return (jwtToken, user);
+            return (tokenHandler.WriteToken(token), user);
         }
     }
 }

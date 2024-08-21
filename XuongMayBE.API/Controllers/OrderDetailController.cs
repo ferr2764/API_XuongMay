@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using XuongMay.Contract.Services.Interface;
 using XuongMay.ModelViews.OrderDetailModelView;
 
@@ -17,66 +16,31 @@ namespace XuongMayBE.API.Controllers
             _orderDetailService = orderDetailService;
         }
 
-        /// <summary>
-        /// Get an order detail by ID.
-        /// </summary>
-        /// <param name="id">The ID of the order detail.</param>
-        /// <returns>The order detail.</returns>
-        [Authorize(Roles = "Manager")]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrderDetailById(string id)
-        {
-            var orderDetail = await _orderDetailService.GetOrderDetailByIdAsync(id);
-            if (orderDetail == null)
-            {
-                return NotFound();
-            }
-            return Ok(orderDetail);
-        }
-
-        /// <summary>
-        /// Get all order details.
-        /// </summary>
-        /// <returns>A list of all order details.</returns>
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetAllOrderDetails(int pageNumber = 1, int pageSize = 5)
+        public async Task<IActionResult> GetOrderDetailsByOrderId(Guid orderId)
         {
-            var pagedOrderDetails = await _orderDetailService.GetPaginatedOrderDetailsAsync(pageNumber, pageSize);
-            return Ok(pagedOrderDetails);
+            var orderDetails = await _orderDetailService.GetOrderDetailsByOrderIdAsync(orderId);
+            if (orderDetails == null)
+            {
+                return NotFound("Order details not found.");
+            }
+            return Ok(orderDetails);
         }
 
-        /// <summary>
-        /// Get order details by order ID.
-        /// </summary>
-        /// <returns>A list of order details for a specific order.</returns>
-        [Authorize(Roles = "Manager")]
-        [HttpGet("order/{orderId}")]
-        public async Task<IActionResult> GetOrderDetailByOrderId(string orderId)
-        {
-
-            var orderDetail = await _orderDetailService.GetOrderDetailsByOrderIdAsync(orderId);
-            return Ok(orderDetail);
-        }
-
-        /// <summary>
-        /// Create a new order detail.
-        /// </summary>
-        /// <param name="orderDetail">The order detail data to create.</param>
-        /// <returns>The created order detail.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView orderDetail)
+        public async Task<IActionResult> CreateOrderDetail([FromBody] CreateOrderDetailModelView model)
         {
-            if (orderDetail == null)
+            if (model == null)
             {
-                return BadRequest("Order Detail data is null.");
+                return BadRequest("Invalid Order Detail data.");
             }
 
             try
             {
-                var createdOrderDetail = await _orderDetailService.CreateOrderDetailAsync(orderDetail);
-                return CreatedAtAction(nameof(GetOrderDetailById), new { id = createdOrderDetail.Id.ToString() }, createdOrderDetail);
+                var response = await _orderDetailService.CreateOrderDetailAsync(model);
+                return CreatedAtAction(nameof(GetOrderDetailsByOrderId), new { id = response.OrderId }, response);
             }
             catch (Exception ex)
             {
@@ -84,24 +48,18 @@ namespace XuongMayBE.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Update an existing order detail.
-        /// </summary>
-        /// <param name="id">The ID of the order detail to update.</param>
-        /// <param name="orderDetailModel">The updated order detail data.</param>
-        /// <returns>The updated order detail.</returns>
         [Authorize(Roles = "Manager")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrderDetail(string id, [FromBody] UpdateOrderDetailModelView orderDetailModel)
+        public async Task<IActionResult> UpdateOrderDetail(Guid id, [FromBody] UpdateOrderDetailModelView orderDetail)
         {
-            if (orderDetailModel == null || !ObjectId.TryParse(id, out var objectId))
+            if (orderDetail == null)
             {
-                return BadRequest("Invalid Order Detail data or ID format.");
+                return BadRequest("Invalid order detail data.");
             }
 
             try
             {
-                var updatedOrderDetail = await _orderDetailService.UpdateOrderDetailAsync(id, orderDetailModel);
+                var updatedOrderDetail = await _orderDetailService.UpdateOrderDetailAsync(id, orderDetail);
                 return updatedOrderDetail != null ? Ok(updatedOrderDetail) : NotFound("Order detail not found.");
             }
             catch (Exception ex)
@@ -111,36 +69,17 @@ namespace XuongMayBE.API.Controllers
         }
 
         [Authorize(Roles = "Manager")]
-        [HttpPut("cancel/{id}")]
-        public async Task<IActionResult> CancelOrder(string id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrderDetail(Guid id)
         {
             try
             {
-                await _orderDetailService.CancelOrderDetailAsync(id);
+                await _orderDetailService.DeleteOrderDetailAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut("{id}/status/next")]
-        public async Task<IActionResult> MoveToNextStatus(string id)
-        {
-            try
-            {
-                var orderDetail = await _orderDetailService.MoveToNextStatusAsync(id);
-                if (orderDetail == null)
-                {
-                    return BadRequest("Unable to move to the next status. Order detail may be completed or cancelled.");
-                }
-
-                return Ok(orderDetail);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                return NotFound(new { Message = ex.Message });
             }
         }
     }

@@ -1,32 +1,20 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
+﻿using System;
+using System.Collections.Generic;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Order
+    public partial class Order
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
-
-        [BsonElement("createdDate")]
+        public Guid OrderId { get; set; } = Guid.NewGuid();
         public DateTime CreatedDate { get; set; }
-
-        [BsonElement("finishDate")]
-        public DateTime? FinishDate { get; set; }
-
-        [BsonElement("status")]
-        public string Status { get; set; }
-
-        [BsonElement("deadline")]
+        public DateTime FinishDate { get; set; }
+        public string Status { get; set; } = null!;
         public DateTime Deadline { get; set; }
+        public Guid AccountId { get; set; }
+        public Guid AssignedAccountId { get; set; }
 
-        [BsonElement("accountId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId AccountId { get; set; }
-
-        [BsonElement("assignedAccountId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId AssignedAccountId { get; set; }
+        public virtual Account Account { get; set; } = null!;
+        public virtual Account AssignedAccount { get; set; } = null!;
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

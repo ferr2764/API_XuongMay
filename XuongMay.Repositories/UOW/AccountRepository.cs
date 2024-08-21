@@ -1,45 +1,63 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using XuongMay.Contract.Repositories.IUOW;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.Entity;
-
+using XuongMay.Contract.Repositories.Interface;
 
 namespace XuongMay.Repositories.UOW
 {
     public class AccountRepository : IAccountRepository
     {
-        private readonly IMongoCollection<Account> _accounts;
+        private readonly DatabaseContext _context;
+        private readonly DbSet<Account> _accounts;
 
-        public AccountRepository(IMongoDatabase database)
+        public AccountRepository(DatabaseContext context)
         {
-            _accounts = database.GetCollection<Account>("Account");
+            _context = context;
+            _accounts = context.Accounts;
         }
 
         public async Task<IEnumerable<Account>> GetAllAsync()
         {
-            return await _accounts.Find(_ => true).ToListAsync();
+            return await _accounts.ToListAsync();
         }
 
-        public async Task<Account> GetByIdAsync(ObjectId id)
+        public async Task<Account> GetByIdAsync(Guid id)
         {
-            return await _accounts.Find(account => account.Id == id).FirstOrDefaultAsync();
+            return await _accounts.FindAsync(id);
         }
 
-        public async Task CreateAsync(Account account)
+        public async Task<Account> GetByPredicateAsync(Func<Account, bool> predicate)
         {
-            await _accounts.InsertOneAsync(account);
+            return await Task.FromResult(_accounts.SingleOrDefault(predicate));
         }
 
-        public async Task<bool> UpdateAsync(ObjectId id, Account account)
+        public async Task InsertAsync(Account account)
         {
-            var result = await _accounts.ReplaceOneAsync(a => a.Id == id, account);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            await _accounts.AddAsync(account);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(ObjectId id)
+        public async Task<bool> UpdateAsync(Guid id, Account account)
         {
-            var result = await _accounts.DeleteOneAsync(a => a.Id == id);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            var existingAccount = await _accounts.FindAsync(id);
+            if (existingAccount == null) return false;
+
+            _context.Entry(existingAccount).CurrentValues.SetValues(account);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var account = await _accounts.FindAsync(id);
+            if (account == null) return false;
+
+            _accounts.Remove(account);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -6,20 +6,10 @@ namespace XuongMay.Contract.Repositories.IUOW
 {
     public interface IOrderDetailRepository
     {
-        // Get all order details
         Task<IEnumerable<OrderDetail>> GetAllAsync();
-
-        // Get order detail by Id
-        Task<OrderDetail> GetByIdAsync(ObjectId id);
-
-        // Create a new order detail
+        Task<OrderDetail> GetByIdAsync(Guid id);
         Task CreateAsync(OrderDetail orderDetail);
-
-        // Update an existing order detail
-        Task<bool> UpdateAsync(ObjectId id, OrderDetail orderDetail);
-
-        // Delete an order detail by Id
-        Task<bool> DeleteAsync(ObjectId id);
-
+        Task<bool> UpdateAsync(Guid id, OrderDetail orderDetail);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

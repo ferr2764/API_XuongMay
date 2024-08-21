@@ -1,7 +1,9 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using XuongMay.Core;
-
 
 namespace XuongMay.Contract.Repositories.IUOW
 {
@@ -12,22 +14,22 @@ namespace XuongMay.Contract.Repositories.IUOW
 
         // Non-async methods
         IEnumerable<T> GetAll();
-        T? GetById(ObjectId id);
+        T? GetById(Guid id);
         void Insert(T obj);
         void InsertRange(IList<T> obj);
         void Update(T obj);
-        void Delete(ObjectId id);
+        void Delete(Guid id);
         void Save();
 
         // Async methods
         Task<IList<T>> GetAllAsync();
         Task<BasePaginatedList<T>> GetPaginatedAsync(IQueryable<T> query, int pageIndex, int pageSize);
-        Task<T?> GetByIdAsync(ObjectId id);
+        Task<T?> GetByIdAsync(Guid id);
         Task InsertAsync(T obj);
         Task InsertRangeAsync(IList<T> obj);
         Task UpdateAsync(T obj);
-        Task DeleteAsync(ObjectId id);
+        Task DeleteAsync(Guid id);
         Task SaveAsync();
-        Task<IEnumerable<T>> GetAllByFilterAsync(FilterDefinition<T> filter);
+        Task<IEnumerable<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter);
     }
 }

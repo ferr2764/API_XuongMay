@@ -1,4 +1,7 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -8,37 +11,26 @@ namespace XuongMay.Services.Service
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryService(IUnitOfWork unitOfWork)
+        public CategoryService(ICategoryRepository categoryRepository)
         {
-            _unitOfWork = unitOfWork;
+            _categoryRepository = categoryRepository;
         }
 
-
-        public async Task<IEnumerable<Category>> GetCategoriesByPageAsync(int page, int pageSize)
+        public async Task<IEnumerable<Category>> GetPaginatedCategoriesAsync(int pageNumber, int pageSize)
         {
-            var repository = _unitOfWork.GetRepository<Category>();
-            var categories = await repository.GetAllAsync();
-
+            var categories = await _categoryRepository.GetAllAsync();
             var pagedCategories = categories
-                                  .Skip((page - 1) * pageSize)
-                                  .Take(pageSize)
-                                  .ToList();
-
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
             return pagedCategories;
         }
 
-
-        public async Task<Category> GetCategoryByIdAsync(string id)
+        public async Task<Category> GetCategoryByIdAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
-
-            var repository = _unitOfWork.GetRepository<Category>();
-            return await repository.GetByIdAsync(objectId);
+            return await _categoryRepository.GetByIdAsync(id);
         }
 
         public async Task<Category> CreateCategoryAsync(CreateCategoryModelView categoryModelView)
@@ -47,59 +39,31 @@ namespace XuongMay.Services.Service
             {
                 CategoryName = categoryModelView.CategoryName,
                 CategoryDescription = categoryModelView.CategoryDescription,
-                CategoryStatus = "Available"
             };
 
-            var repository = _unitOfWork.GetRepository<Category>();
-            await repository.InsertAsync(category);
-
+            await _categoryRepository.InsertAsync(category);
             return category;
         }
 
-        public async Task<Category> UpdateCategoryAsync(string id, UpdateCategoryModelView category)
+        public async Task<Category> UpdateCategoryAsync(Guid id, UpdateCategoryModelView categoryModelView)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
+            var existingCategory = await _categoryRepository.GetByIdAsync(id);
+            if (existingCategory == null) return null;
 
-            var repository = _unitOfWork.GetRepository<Category>();
-            var existingCategory = await repository.GetByIdAsync(objectId);
-            if (existingCategory == null)
-            {
-                return null;
-            }
+            existingCategory.CategoryName = categoryModelView.CategoryName;
+            existingCategory.CategoryDescription = categoryModelView.CategoryDescription;
+            existingCategory.CategoryStatus = categoryModelView.CategoryStatus;
 
-            // Update các thuộc tính cần thiết
-            existingCategory.CategoryName = category.CategoryName;
-            existingCategory.CategoryDescription = category.CategoryDescription;
-            existingCategory.CategoryStatus = category.CategoryStatus;
-
-            await repository.UpdateAsync(existingCategory);
-
-
+            await _categoryRepository.UpdateAsync(id, existingCategory);
             return existingCategory;
         }
 
-        public async Task<bool> DeleteCategoryAsync(string id)
+        public async Task<bool> DeleteCategoryAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return false;
-            }
+            var existingCategory = await _categoryRepository.GetByIdAsync(id);
+            if (existingCategory == null) return false;
 
-            var repository = _unitOfWork.GetRepository<Category>();
-            var existingCategory = await repository.GetByIdAsync(objectId);
-            if (existingCategory == null)
-            {
-                return false;
-            }
-
-            // Update trạng thái thành Unavailable
-            existingCategory.CategoryStatus = "Unavailable";
-            await repository.UpdateAsync(existingCategory);
-
-
+            await _categoryRepository.DeleteAsync(id);
             return true;
         }
     }

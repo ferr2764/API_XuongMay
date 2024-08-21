@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using XuongMay.Contract.Repositories.Entity;
 using XuongMay.Contract.Repositories.Interface;
 using XuongMay.Contract.Services.Interface;
@@ -10,130 +12,80 @@ namespace XuongMay.Services.Service
 {
     public class AccountService : IAccountService
     {
-        private readonly IMongoCollection<Account> _accounts;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAccountRepository _accountRepository;
 
-        public AccountService(IMongoDatabase database, IUnitOfWork unitOfWork)
+        public AccountService(IAccountRepository accountRepository)
         {
-            _accounts = database.GetCollection<Account>("Account");
-            _unitOfWork = unitOfWork;
+            _accountRepository = accountRepository;
         }
 
-        public ExposeAccountModelView AccountMapping(Account account)
+        private ExposeAccountModelView AccountMapping(Account account)
         {
-            ExposeAccountModelView model = new();
-            model.Id = account.Id.ToString();
-            model.Name = account.Name;
-            model.Role = account.Role;
-            model.Username = account.Username;
-            model.Salary = account.Salary;
-            model.Status = account.Status;
-            return model;
-        }
-        //Get account By Id
-        public async Task<ExposeAccountModelView> GetAccountByIdAsync(string id)
-        {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return null;
-
-            var repository = _unitOfWork.GetRepository<Account>();
-            var account = await repository.GetByIdAsync(objectId);
-            if (account == null)
+            return new ExposeAccountModelView
             {
-                return null;
-            }
-                
-
-            return AccountMapping(account);
+                Id = account.AccountId,
+                Name = account.Name,
+                Role = account.Role,
+                Username = account.Username,
+                Salary = account.Salary,
+                Status = account.Status
+            };
         }
 
-        //Get account By Role
+        public async Task<ExposeAccountModelView> GetAccountByIdAsync(Guid id)
+        {
+            var account = await _accountRepository.GetByIdAsync(id);
+            return account == null ? null : AccountMapping(account);
+        }
+
         public async Task<IEnumerable<ExposeAccountModelView>> GetAccountsByRoleAsync(string role)
         {
-            var accounts = await _accounts.Find(a => a.Role == role).ToListAsync();
-            return accounts.Select(AccountMapping);
+            var accounts = await _accountRepository.GetAllAsync();
+            var filteredAccounts = accounts.Where(a => a.Role == role);
+            return filteredAccounts.Select(AccountMapping);
         }
 
-
-        //Get all accounts
         public async Task<IEnumerable<ExposeAccountModelView>> GetAllAccountsAsync(int pageNumber = 1, int pageSize = 5)
         {
-            var repository = _unitOfWork.GetRepository<Account>();
-            var accounts = await repository.GetAllAsync();
-
+            var accounts = await _accountRepository.GetAllAsync();
             var pagedAccounts = accounts
-                                .Skip((pageNumber - 1) * pageSize)
-                                .Take(pageSize)
-                                .ToList();
-
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
             return pagedAccounts.Select(AccountMapping);
         }
 
-
-        //Update account
-        public async Task<ExposeAccountModelView> UpdateAccountAsync(string id, UpdateAccountModelView account)
+        public async Task<ExposeAccountModelView> UpdateAccountAsync(Guid id, UpdateAccountModelView accountModelView)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-            {
-                return null;
-            }
+            var existingAccount = await _accountRepository.GetByIdAsync(id);
+            if (existingAccount == null) return null;
 
-            var repository = _unitOfWork.GetRepository<Account>();
-            var existingAccount = await repository.GetByIdAsync(objectId);
-            if (existingAccount == null)
-            {
-                return null;
-            }
+            existingAccount.Name = accountModelView.Name;
+            existingAccount.Username = accountModelView.Username;
+            existingAccount.Password = BCrypt.Net.BCrypt.HashPassword(accountModelView.Password);
+            existingAccount.Salary = accountModelView.Salary;
 
-            // Update properties
-            existingAccount.Name = account.Name;
-            existingAccount.Username = account.Username;
-            existingAccount.Password = account.Password;
-            existingAccount.Salary = account.Salary;
-
-            await repository.UpdateAsync(existingAccount);
-
+            await _accountRepository.UpdateAsync(id, existingAccount);
             return AccountMapping(existingAccount);
         }
 
-
-        public async Task<bool> DeleteAccountAsync(string id)
+        public async Task<bool> DeleteAccountAsync(Guid id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return false;
+            var existingAccount = await _accountRepository.GetByIdAsync(id);
+            if (existingAccount == null) return false;
 
-            var repository = _unitOfWork.GetRepository<Account>();
-            var existingAccount = await repository.GetByIdAsync(objectId);
-            if (existingAccount == null)
-            {
-                return false;
-            }
-
-            // Update trạng thái thành Unavailable
             existingAccount.Status = "Unavailable";
-         
-
-            await repository.UpdateAsync(existingAccount);
+            await _accountRepository.UpdateAsync(id, existingAccount);
             return true;
         }
 
-        // Update account role
-        public async Task UpdateAccountRoleAsync(string accountId, string newRole)
+        public async Task UpdateAccountRoleAsync(Guid accountId, string newRole)
         {
-            ObjectId objectId = ObjectId.Parse(accountId);
+            var account = await _accountRepository.GetByIdAsync(accountId);
+            if (account == null) throw new Exception("Account not found.");
 
-            // Update the role field of the account
-            var updateDefinition = Builders<Account>.Update
-                .Set(a => a.Role, newRole);
-
-            // Execute the update
-            var result = await _accounts.UpdateOneAsync(a => a.Id == objectId, updateDefinition);
-
-            if (result.MatchedCount == 0)
-            {
-                throw new Exception("Account not found.");
-            }
+            account.Role = newRole;
+            await _accountRepository.UpdateAsync(accountId, account);
         }
-
     }
 }

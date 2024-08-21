@@ -1,30 +1,19 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
+﻿using System;
+using System.Collections.Generic;
 
 namespace XuongMay.Contract.Repositories.Entity
 {
-    public class Account
+    public partial class Account
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public Guid AccountId { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string Password { get; set; } = null!;
+        public string Role { get; set; } = null!;
+        public int Salary { get; set; }
+        public string Status { get; set; } = null!;
 
-        [BsonElement("name")]
-        public string Name { get; set; }
-
-        [BsonElement("username")]
-        public string Username { get; set; }
-
-        [BsonElement("password")]
-        public string Password { get; set; }
-
-        [BsonElement("role")]
-        public string? Role { get; set; }
-
-        [BsonElement("salary")]
-        public int? Salary { get; set; }
-
-        [BsonElement("status")]
-        public string? Status { get; set; }
+        public virtual ICollection<Order> OrderAccounts { get; set; } = new List<Order>();
+        public virtual ICollection<Order> OrderAssignedAccounts { get; set; } = new List<Order>();
     }
 }

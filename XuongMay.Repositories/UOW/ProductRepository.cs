@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using XuongMay.Contract.Repositories.IUOW;
 using XuongMay.Contract.Repositories.Entity;
 
@@ -7,38 +9,49 @@ namespace XuongMay.Repositories.UOW
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly IMongoCollection<Product> _products;
+        private readonly DatabaseContext _context;
+        private readonly DbSet<Product> _products;
 
-        public ProductRepository(IMongoDatabase database)
+        public ProductRepository(DatabaseContext context)
         {
-            _products = database.GetCollection<Product>("Products");
+            _context = context;
+            _products = context.Set<Product>();
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            return await _products.Find(_ => true).ToListAsync();
+            return await _products.ToListAsync();
         }
 
-        public async Task<Product> GetByIdAsync(ObjectId id)
+        public async Task<Product> GetByIdAsync(Guid id)
         {
-            return await _products.Find(product => product.Id == id).FirstOrDefaultAsync();
+            return await _products.FindAsync(id);
         }
 
         public async Task CreateAsync(Product product)
         {
-            await _products.InsertOneAsync(product);
+            await _products.AddAsync(product);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(ObjectId id, Product product)
+        public async Task<bool> UpdateAsync(Guid id, Product product)
         {
-            var result = await _products.ReplaceOneAsync(p => p.Id == id, product);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            var existingProduct = await _products.FindAsync(id);
+            if (existingProduct == null) return false;
+
+            _context.Entry(existingProduct).CurrentValues.SetValues(product);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<bool> DeleteAsync(ObjectId id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var result = await _products.DeleteOneAsync(p => p.Id == id);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            var product = await _products.FindAsync(id);
+            if (product == null) return false;
+
+            _products.Remove(product);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
